@@ -1,0 +1,117 @@
+name: facturacion-hexagonal
+
+services:
+  facturacion-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8080}:8080"
+    environment:
+      SERVER_ADDRESS: 0.0.0.0
+      SERVER_PORT: "8080"
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0"
+      # MongoDB: catálogo y GridFS. Cassandra/MySQL: reservadas para futuras fases.
+      MONGODB_HOST: ${MONGODB_HOST:-facturacion-mongodb}
+      MONGODB_PORT: "27017"
+      MONGODB_DATABASE: ${MONGODB_DATABASE:-facturacion_productos}
+      MONGODB_USERNAME: ${MONGODB_USERNAME:?Define MONGODB_USERNAME en .env}
+      MONGODB_PASSWORD: ${MONGODB_PASSWORD:?Define MONGODB_PASSWORD en .env}
+      MONGODB_AUTH_DATABASE: admin
+      CASSANDRA_HOST: ${CASSANDRA_HOST:-facturacion-cassandra}
+      CASSANDRA_PORT: "9042"
+      CASSANDRA_DATACENTER: datacenter1
+      MYSQL_HOST: ${MYSQL_HOST:-facturacion-mysql}
+      MYSQL_PORT: "3306"
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-facturacion_ventas}
+      MYSQL_USER: ${MYSQL_USER:?Define MYSQL_USER en .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Define MYSQL_PASSWORD en .env}
+    depends_on:
+      facturacion-mongodb:
+        condition: service_healthy
+      facturacion-cassandra:
+        condition: service_healthy
+      facturacion-mysql:
+        condition: service_healthy
+    mem_limit: 512m
+    networks:
+      - facturacion-interna
+
+  facturacion-mongodb:
+    image: mongo:8.0
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE:-facturacion_productos}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USERNAME:?Define MONGODB_USERNAME en .env}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:?Define MONGODB_PASSWORD en .env}
+    command: ["mongod", "--wiredTigerCacheSizeGB", "0.25"]
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --host
+        - 127.0.0.1
+        - --eval
+        - 'const admin = db.getSiblingDB("admin"); admin.auth(process.env.MONGO_INITDB_ROOT_USERNAME, process.env.MONGO_INITDB_ROOT_PASSWORD); if (admin.runCommand({ping: 1}).ok !== 1) quit(1);'
+      interval: 15s
+      timeout: 10s
+      start_period: 40s
+      retries: 10
+    mem_limit: 768m
+    networks:
+      - facturacion-interna
+
+  facturacion-cassandra:
+    image: cassandra:4.1.12
+    environment:
+      CASSANDRA_CLUSTER_NAME: FacturacionCluster
+      CASSANDRA_DC: datacenter1
+      CASSANDRA_RACK: rack1
+      CASSANDRA_ENDPOINT_SNITCH: GossipingPropertyFileSnitch
+      MAX_HEAP_SIZE: 1024M
+      HEAP_NEWSIZE: 128M
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+    healthcheck:
+      test: ["CMD", "cqlsh", "127.0.0.1", "9042", "-e", "SELECT release_version FROM system.local;"]
+      interval: 20s
+      timeout: 15s
+      start_period: 120s
+      retries: 15
+    mem_limit: 2g
+    stop_grace_period: 60s
+    networks:
+      - facturacion-interna
+
+  facturacion-mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-facturacion_ventas}
+      MYSQL_USER: ${MYSQL_USER:?Define MYSQL_USER en .env}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Define MYSQL_PASSWORD en .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Define MYSQL_ROOT_PASSWORD en .env}
+    command: ["--innodb-buffer-pool-size=128M", "--max-connections=50"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'MYSQL_PWD="$${MYSQL_PASSWORD}" mysql --protocol=TCP --host=127.0.0.1 --connect-timeout=5 --user="$${MYSQL_USER}" --database="$${MYSQL_DATABASE}" --execute="SELECT 1"'
+      interval: 15s
+      timeout: 10s
+      start_period: 60s
+      retries: 15
+    mem_limit: 768m
+    networks:
+      - facturacion-interna
+
+networks:
+  facturacion-interna:
+    driver: bridge
+
+volumes:
+  mongodb-data:
+  cassandra-data:
+  mysql-data:

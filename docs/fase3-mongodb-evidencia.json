@@ -1,0 +1,52 @@
+{
+  "producto": {
+    "_id": "f7455220-d9ad-411f-838d-259e6909eb1b",
+    "sku": "FASE3-TEST-29bbee9a5a564c34aaa484d983040930-A",
+    "nombre": "Producto actualizado fase 3",
+    "descripcion": "Prueba aislada",
+    "categoria": "Pruebas",
+    "costo": {
+      "$numberDecimal": "12345.67"
+    },
+    "precioVenta": {
+      "$numberDecimal": "19000.99"
+    },
+    "activo": false,
+    "imagenId": "6aeaad070e7d961b26f75dac",
+    "fechaCreacion": {
+      "$date": "2026-11-04T03:56:55.099Z"
+    },
+    "fechaActualizacion": {
+      "$date": "2026-11-04T03:56:55.658Z"
+    },
+    "_class": "com.sttiv.facturacion.infrastructure.adapter.output.mongo.ProductoDocument"
+  },
+  "tipos": {
+    "_id": "f7455220-d9ad-411f-838d-259e6909eb1b",
+    "costo": "decimal",
+    "precioVenta": "decimal"
+  },
+  "indice": {
+    "v": 2,
+    "key": {
+      "sku": 1
+    },
+    "name": "sku_unico",
+    "unique": true
+  },
+  "archivo": {
+    "_id": {
+      "$oid": "6aeaad070e7d961b26f75dac"
+    },
+    "filename": "a702218f-4edd-40ad-bce9-0cba3dd79e57",
+    "length": 68,
+    "chunkSize": 261120,
+    "uploadDate": {
+      "$date": "2026-11-04T03:56:55.529Z"
+    },
+    "metadata": {
+      "_contentType": "image/png"
+    }
+  },
+  "chunks": 1
+}
