@@ -3,6 +3,8 @@ package com.sttiv.facturacion.infrastructure;
 import com.sttiv.facturacion.CatalogoEnMemoria;
 import com.sttiv.facturacion.application.port.ProductoUseCase;
 import com.sttiv.facturacion.application.usecase.ProductoService;
+import com.sttiv.facturacion.domain.port.PersonaRepositoryPort;
+import com.sttiv.facturacion.domain.exception.PersistenciaPersonaException;
 import com.sttiv.facturacion.infrastructure.adapter.input.rest.ProductoController;
 import java.time.Clock;
 import org.junit.jupiter.api.*;
@@ -17,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -25,18 +28,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ProductoControllerTests {
     @TestConfiguration static class Config {
         @Bean CatalogoEnMemoria catalogo() { return new CatalogoEnMemoria(); }
-        @Bean ProductoUseCase productos(CatalogoEnMemoria catalogo) {
-            return new ProductoService(catalogo, catalogo, Clock.systemUTC());
+        @Bean PersonaRepositoryPort personas() { return mock(PersonaRepositoryPort.class); }
+        @Bean ProductoUseCase productos(CatalogoEnMemoria catalogo, PersonaRepositoryPort personas) {
+            return new ProductoService(catalogo, catalogo, personas, Clock.systemUTC());
         }
     }
     @Autowired MockMvc mvc;
     @Autowired CatalogoEnMemoria catalogo;
+    @Autowired PersonaRepositoryPort personas;
     final JsonMapper json = JsonMapper.builder().build();
     final String valido = """
             {"sku":"CAF-1","nombre":"Café","descripcion":"Molido","categoria":"Alimentos",
              "costo":12345.67,"precioVenta":19000.99,"proveedorId":null}
             """;
-    @BeforeEach void limpiar() { catalogo.productos.clear(); catalogo.imagenes.clear(); }
+    @BeforeEach void limpiar() { catalogo.productos.clear(); catalogo.imagenes.clear(); reset(personas); }
     String crear() throws Exception {
         var resultado = mvc.perform(post("/api/productos").contentType(MediaType.APPLICATION_JSON).content(valido))
                 .andExpect(status().isCreated()).andExpect(header().exists("Location"))
@@ -104,5 +109,22 @@ class ProductoControllerTests {
                     .andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400));
         }
         mvc.perform(multipart("/api/productos/{id}/imagen", id)).andExpect(status().isBadRequest());
+    }
+
+    @Test void proveedorInvalidoOInexistenteDevuelve400SinGuardar() throws Exception {
+        for (String proveedor : new String[]{"incorrecto", java.util.UUID.randomUUID().toString()}) {
+            mvc.perform(post("/api/productos").contentType(MediaType.APPLICATION_JSON)
+                    .content(valido.replace("\"proveedorId\":null", "\"proveedorId\":\"" + proveedor + "\"")))
+                    .andExpect(status().isBadRequest()).andExpect(jsonPath("$.detail").isNotEmpty());
+        }
+        assertThat(catalogo.productos).isEmpty();
+    }
+
+    @Test void falloCassandraDevuelve503SinGuardar() throws Exception {
+        when(personas.buscarPorId(any())).thenThrow(new PersistenciaPersonaException("Cassandra no disponible", null));
+        mvc.perform(post("/api/productos").contentType(MediaType.APPLICATION_JSON)
+                .content(valido.replace("\"proveedorId\":null", "\"proveedorId\":\"" + java.util.UUID.randomUUID() + "\"")))
+                .andExpect(status().isServiceUnavailable()).andExpect(jsonPath("$.detail").value("Cassandra no disponible"));
+        assertThat(catalogo.productos).isEmpty();
     }
 }

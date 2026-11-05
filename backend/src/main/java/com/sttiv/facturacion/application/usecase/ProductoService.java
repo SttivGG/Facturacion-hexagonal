@@ -8,17 +8,21 @@ import com.sttiv.facturacion.domain.port.*;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class ProductoService implements ProductoUseCase {
     public static final int MAX_IMAGEN_BYTES = 3 * 1024 * 1024;
     private final ProductoRepositoryPort productos;
     private final ImagenStoragePort imagenes;
+    private final PersonaRepositoryPort personas;
     private final Clock clock;
 
-    public ProductoService(ProductoRepositoryPort productos, ImagenStoragePort imagenes, Clock clock) {
+    public ProductoService(ProductoRepositoryPort productos, ImagenStoragePort imagenes,
+            PersonaRepositoryPort personas, Clock clock) {
         this.productos = productos;
         this.imagenes = imagenes;
+        this.personas = personas;
         this.clock = clock;
     }
 
@@ -26,7 +30,7 @@ public class ProductoService implements ProductoUseCase {
     public Producto crear(ProductoCommand c) {
         Instant ahora = clock.instant();
         Producto producto = new Producto(UUID.randomUUID().toString(), c.sku(), c.nombre(),
-                c.descripcion(), c.categoria(), c.costo(), c.precioVenta(), c.proveedorId(),
+                c.descripcion(), c.categoria(), c.costo(), c.precioVenta(), validarProveedor(c.proveedorId()),
                 true, null, ahora, ahora);
         validarSku(producto);
         return productos.guardar(producto);
@@ -46,11 +50,33 @@ public class ProductoService implements ProductoUseCase {
 
     @Override public Producto actualizar(String id, ProductoCommand c) {
         Producto anterior = consultar(id);
+        // Las referencias históricas sin cambios no dependen de la disponibilidad de Cassandra.
+        String proveedorId = Objects.equals(anterior.proveedorId(), c.proveedorId())
+                ? anterior.proveedorId() : validarProveedor(c.proveedorId());
         Producto actualizado = new Producto(id, c.sku(), c.nombre(), c.descripcion(), c.categoria(),
-                c.costo(), c.precioVenta(), c.proveedorId(), anterior.activo(), anterior.imagenId(),
+                c.costo(), c.precioVenta(), proveedorId, anterior.activo(), anterior.imagenId(),
                 anterior.fechaCreacion(), clock.instant());
         validarSku(actualizado);
         return productos.guardar(actualizado);
+    }
+
+    private String validarProveedor(String referencia) {
+        if (referencia == null || referencia.isBlank()) return null;
+        String valor = referencia.trim();
+        UUID id;
+        try {
+            id = UUID.fromString(valor);
+            if (!id.toString().equalsIgnoreCase(valor)) throw new IllegalArgumentException();
+        } catch (IllegalArgumentException ex) {
+            throw new DatosInvalidosException("El identificador del proveedor debe ser un UUID válido");
+        }
+        Persona proveedor = personas.buscarPorId(id).orElseThrow(
+                () -> new DatosInvalidosException("El proveedor seleccionado no existe"));
+        if (!proveedor.activo()) throw new DatosInvalidosException("El proveedor seleccionado está inactivo");
+        if (!proveedor.roles().contains(RolPersona.PROVEEDOR)) {
+            throw new DatosInvalidosException("La persona seleccionada no tiene rol PROVEEDOR");
+        }
+        return id.toString();
     }
 
     @Override public void desactivar(String id) {

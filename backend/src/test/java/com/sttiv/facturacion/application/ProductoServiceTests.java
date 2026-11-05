@@ -19,11 +19,12 @@ import static org.mockito.Mockito.*;
 class ProductoServiceTests {
     CatalogoEnMemoria catalogo;
     ProductoService service;
+    PersonaRepositoryPort personas = mock(PersonaRepositoryPort.class);
     final Instant ahora = Instant.parse("2026-11-03T12:00:00Z");
 
     @BeforeEach void preparar() {
         catalogo = new CatalogoEnMemoria();
-        service = new ProductoService(catalogo, catalogo, Clock.fixed(ahora, ZoneOffset.UTC));
+        service = new ProductoService(catalogo, catalogo, personas, Clock.fixed(ahora, ZoneOffset.UTC));
     }
     ProductoCommand datos(String sku) {
         return new ProductoCommand(sku, "Café", "Molido", "Alimentos",
@@ -69,7 +70,7 @@ class ProductoServiceTests {
         Producto p = service.crear(datos("SKU"));
         assertThat(service.consultar(p.id())).isEqualTo(p);
         assertThat(service.listar()).containsExactly(p);
-        service = new ProductoService(catalogo, catalogo, Clock.fixed(ahora.plusSeconds(60), ZoneOffset.UTC));
+        service = new ProductoService(catalogo, catalogo, personas, Clock.fixed(ahora.plusSeconds(60), ZoneOffset.UTC));
         Producto editado = service.actualizar(p.id(), datos("NUEVO"));
         assertThat(editado.id()).isEqualTo(p.id());
         assertThat(editado.sku()).isEqualTo("NUEVO");
@@ -136,7 +137,7 @@ class ProductoServiceTests {
         when(productos.buscarPorId(p.id())).thenReturn(Optional.of(p));
         when(imagenes.guardar(any())).thenReturn("nueva");
         when(productos.guardar(any())).thenThrow(new IllegalStateException("fallo de escritura"));
-        var caso = new ProductoService(productos, imagenes, Clock.systemUTC());
+        var caso = new ProductoService(productos, imagenes, personas, Clock.systemUTC());
         assertThatThrownBy(() -> caso.asociarImagen(p.id(), new ImagenProducto(
                 new byte[]{(byte)255,(byte)216,(byte)255}, "image/jpeg")))
                 .isInstanceOf(IllegalStateException.class);

@@ -86,6 +86,8 @@ export const api = {
   }),
   personByDocument: (type: string, document: string, signal?: AbortSignal) =>
     request<Persona>(`/personas/documento/${encodeURIComponent(type.trim())}/${encodeURIComponent(document.trim())}`, { signal }),
+  person: (id: string, signal?: AbortSignal) =>
+    request<Persona>(`/personas/${encodeURIComponent(id)}`, { signal }),
   products: (signal: AbortSignal) =>
     request<Producto[]>("/productos", { signal }),
   people: (role: Rol, signal: AbortSignal) =>

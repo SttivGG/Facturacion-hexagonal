@@ -1,9 +1,11 @@
 import { ImagePlus, Save, X } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { api, ApiError, request } from "../api";
-import type { Producto } from "../types";
+import type { Persona, Producto } from "../types";
 import { Field, decimalPattern } from "./forms";
 import { Button, Confirm, ErrorNotice, Overlay } from "./ui";
+import { ProviderSelector } from "./ProviderSelector";
+import { PersonEditor } from "./PersonEditor";
 
 interface Values {
   sku: string;
@@ -60,6 +62,8 @@ export function ProductEditor({
   const [error, setError] = useState("");
   const [discard, setDiscard] = useState(false);
   const [partial, setPartial] = useState(false);
+  const [providerEditor, setProviderEditor] = useState(false);
+  const [createdProvider, setCreatedProvider] = useState<Persona>();
   const form = useRef<HTMLFormElement>(null);
   useEffect(() => {
     if (open) {
@@ -73,6 +77,8 @@ export function ProductEditor({
       setError("");
       setDiscard(false);
       setPartial(false);
+      setProviderEditor(false);
+      setCreatedProvider(undefined);
     }
   }, [open, product]);
   useEffect(() => {
@@ -144,7 +150,7 @@ export function ProductEditor({
           ...values,
           sku: values.sku.trim(),
           nombre: values.nombre.trim(),
-          proveedorId: values.proveedorId.trim() || null,
+          proveedorId: values.proveedorId || null,
         },
         savedId.current,
       );
@@ -287,9 +293,8 @@ export function ProductEditor({
                 placeholder: "0.00",
               })}
             </div>
-            {input("proveedorId", "ID del proveedor", {
-              hint: "Opcional. Identificador de la persona que provee este producto.",
-            })}
+            <ProviderSelector value={values.proveedorId} onChange={id => update("proveedorId", id)}
+              active={open} disabled={busy} knownProvider={createdProvider} onCreate={() => setProviderEditor(true)} />
           </fieldset>
           <fieldset disabled={busy}>
             <legend>Imagen del producto</legend>
@@ -327,6 +332,15 @@ export function ProductEditor({
           </fieldset>
         </form>
       </Overlay>
+      <PersonEditor open={providerEditor} initialRole="PROVEEDOR"
+        onClose={() => setProviderEditor(false)} onSaved={onSaved} onPersisted={() => {}}
+        onClosed={() => form.current?.querySelector<HTMLInputElement>("[data-provider-current]")?.focus()}
+        onCreated={person => {
+          if (person.activo && person.roles.includes("PROVEEDOR")) {
+            setCreatedProvider(person);
+            update("proveedorId", person.id);
+          } else setError("La persona se creó sin rol Proveedor. Puedes asignarle ese rol desde Personas.");
+        }} />
       <Confirm
         open={discard}
         title="¿Descartar los cambios?"

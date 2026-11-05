@@ -1,0 +1,63 @@
+.provider-selector {
+  min-width: 0;
+}
+.provider-selector .field-hint, .provider-selector .provider-option small {
+  font-size: 12px;
+}
+.provider-selector .provider-options {
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding: 6px;
+}
+.provider-selector .provider-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  margin: 6px 2px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+.provider-selector .provider-option:has(:checked) {
+  border-color: var(--accent);
+  background: var(--active);
+}
+.provider-selector .provider-option:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.provider-selector .provider-option input {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  accent-color: var(--accent);
+}
+.provider-option span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.provider-option strong, .provider-option small {
+  display: block;
+}
+.provider-option small {
+  color: var(--muted);
+  margin-top: 3px;
+}
+.provider-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+.provider-document summary {
+  cursor: pointer;
+  padding: 12px 0;
+  min-height: 44px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .provider-selector .provider-option { transition: none; }
+}

@@ -38,6 +38,7 @@ export function PersonEditor({
   onCreated,
   initialIdentity,
   onClosed,
+  initialRole = "CLIENTE",
 }: {
   open: boolean;
   person?: Persona;
@@ -47,6 +48,7 @@ export function PersonEditor({
   onCreated?: (person: Persona) => void;
   initialIdentity?: { tipoDocumento: string; numeroDocumento: string };
   onClosed?: () => void;
+  initialRole?: Rol;
 }) {
   const [values, setValues] = useState<Values>(blank);
   const [selectedRoles, setSelectedRoles] = useState<Rol[]>(["CLIENTE"]);
@@ -62,7 +64,7 @@ export function PersonEditor({
   useEffect(() => {
     if (open) {
       const next = person ? fromPerson(person) : { ...blank, ...initialIdentity };
-      const nextRoles = person?.roles || (["CLIENTE"] as Rol[]);
+      const nextRoles = person?.roles || [initialRole];
       setValues(next);
       setSelectedRoles(nextRoles);
       initial.current = JSON.stringify([next, [...nextRoles].sort()]);
@@ -73,7 +75,7 @@ export function PersonEditor({
       setDiscard(false);
       setPartial(false);
     }
-  }, [open, person, initialIdentity]);
+  }, [open, person, initialIdentity, initialRole]);
   function validate(next: Values) {
     const result: Record<string, string> = {};
     for (const name of ["tipoDocumento", "numeroDocumento", "nombres"] as const)

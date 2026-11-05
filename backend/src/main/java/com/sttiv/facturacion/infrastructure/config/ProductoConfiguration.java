@@ -16,8 +16,9 @@ import org.springframework.data.mongodb.core.index.Index;
 @Configuration
 public class ProductoConfiguration {
     @Bean
-    ProductoUseCase productoUseCase(ProductoRepositoryPort productos, ImagenStoragePort imagenes) {
-        return new ProductoService(productos, imagenes, Clock.systemUTC());
+    ProductoUseCase productoUseCase(ProductoRepositoryPort productos, ImagenStoragePort imagenes,
+            PersonaRepositoryPort personas) {
+        return new ProductoService(productos, imagenes, personas, Clock.systemUTC());
     }
 
     // El arranque verifica la conexión y asegura la unicidad incluso ante solicitudes concurrentes.
