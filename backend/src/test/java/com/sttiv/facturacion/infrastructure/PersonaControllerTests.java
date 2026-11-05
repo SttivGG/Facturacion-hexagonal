@@ -4,6 +4,7 @@ import com.sttiv.facturacion.PersonasEnMemoria;
 import com.sttiv.facturacion.application.port.PersonaUseCase;
 import com.sttiv.facturacion.application.usecase.PersonaService;
 import com.sttiv.facturacion.infrastructure.adapter.input.rest.PersonaController;
+import com.sttiv.facturacion.infrastructure.adapter.output.divipola.DivipolaCatalogoAdapter;
 import java.time.Clock;
 import java.util.UUID;
 import org.junit.jupiter.api.*;
@@ -22,13 +23,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PersonaControllerTests {
     @TestConfiguration static class Config {
         @Bean PersonasEnMemoria repositorio() { return new PersonasEnMemoria(); }
-        @Bean PersonaUseCase personas(PersonasEnMemoria repositorio) { return new PersonaService(repositorio, Clock.systemUTC()); }
+        @Bean PersonaUseCase personas(PersonasEnMemoria repositorio) { return new PersonaService(repositorio, Clock.systemUTC(), new DivipolaCatalogoAdapter()); }
     }
     @Autowired MockMvc mvc;
     @Autowired PersonasEnMemoria repositorio;
     final String valido = """
             {"tipoDocumento":"CC","numeroDocumento":"123","nombres":"Ana","correo":"ana@example.test",
-             "ciudad":"Mocoa","roles":["CLIENTE","PROVEEDOR","CLIENTE"]}
+             "ciudad":"Mocoa","departamento":"Putumayo","pais":"Colombia","roles":["CLIENTE","PROVEEDOR","CLIENTE"]}
             """;
     @BeforeEach void limpiar() { repositorio.datos.clear(); }
     String crear() throws Exception {
@@ -54,6 +55,24 @@ class PersonaControllerTests {
         crear();
         mvc.perform(post("/api/personas").contentType(MediaType.APPLICATION_JSON).content(valido))
                 .andExpect(status().isConflict()).andExpect(content().contentTypeCompatibleWith("application/problem+json"));
+    }
+    @Test void apiNormalizaNombresOficialesYRechazaCombinacionesInvalidas() throws Exception {
+        String id = crear();
+        mvc.perform(get("/api/personas/{id}", id)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.departamento").value("PUTUMAYO"))
+                .andExpect(jsonPath("$.ciudad").value("MOCOA"));
+        mvc.perform(post("/api/personas").contentType(MediaType.APPLICATION_JSON)
+                .content(valido.replace("123", "456").replace("Mocoa", "Medellín")))
+                .andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value(400));
+        mvc.perform(put("/api/personas/{id}", id).contentType(MediaType.APPLICATION_JSON)
+                .content(valido.replace("Putumayo", "Antioquia")))
+                .andExpect(status().isBadRequest());
+        mvc.perform(get("/api/personas/{id}", id)).andExpect(jsonPath("$.ciudad").value("MOCOA"));
+    }
+    @Test void apiPermiteUbicacionTotalmenteOpcional() throws Exception {
+        mvc.perform(post("/api/personas").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"tipoDocumento\":\"CC\",\"numeroDocumento\":\"1\",\"nombres\":\"Sin ubicación\"}"))
+                .andExpect(status().isCreated());
     }
     @Test void invalidosDevuelven400() throws Exception {
         for (String cuerpo : new String[]{"{}", "{", valido.replace("ana@example.test", "correo-malo"),

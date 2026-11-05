@@ -47,3 +47,15 @@ frontend/dist/
 frontend/test-results/
 frontend/playwright-report/
 frontend/*.tsbuildinfo
+
+### Secretos y artefactos locales ###
+node_modules/
+.cache/
+__pycache__/
+*.pyc
+*.log
+*.key
+*.pem
+*.p12
+*.pfx
+.aws/

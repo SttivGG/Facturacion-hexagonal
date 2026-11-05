@@ -46,7 +46,8 @@
 .saved-payments ul { list-style: none; padding: 0; margin: 12px 0; }
 .saved-payments li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 8px 0; }
 .saved-payments small { flex-basis: 100%; color: var(--muted); overflow-wrap: anywhere; }
-.invoice-catalog .catalog-toolbar > label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; min-width: 100px; }
+.invoice-catalog .catalog-toolbar { align-items: flex-end; }
+.invoice-catalog .catalog-toolbar > label:not(.search-field) { display: flex; flex-direction: column; gap: 4px; font-size: 12px; min-width: 100px; }
 .invoice-catalog .catalog-toolbar input[type=date] { max-width: 160px; }
 .invoice-table { min-width: 1060px; }
 .invoice-table td { vertical-align: middle; }

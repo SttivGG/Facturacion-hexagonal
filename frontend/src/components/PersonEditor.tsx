@@ -4,6 +4,8 @@ import { api, ApiError, request } from "../api";
 import { roles, roleNames, type Persona, type Rol } from "../types";
 import { Field } from "./forms";
 import { Button, Confirm, ErrorNotice, Overlay } from "./ui";
+import { LocationSelector } from "./LocationSelector";
+import { sameGeography, validateLocation } from "../locations";
 
 const blank = {
   tipoDocumento: "CC",
@@ -58,6 +60,7 @@ export function PersonEditor({
   const [error, setError] = useState("");
   const [discard, setDiscard] = useState(false);
   const [partial, setPartial] = useState(false);
+  const [pendingLocation, setPendingLocation] = useState<Record<string, string>>({});
   const initial = useRef("");
   const savedId = useRef<string | undefined>(undefined);
   const form = useRef<HTMLFormElement>(null);
@@ -74,6 +77,7 @@ export function PersonEditor({
       setError("");
       setDiscard(false);
       setPartial(false);
+      setPendingLocation({});
     }
   }, [open, person, initialIdentity, initialRole]);
   function validate(next: Values) {
@@ -85,7 +89,7 @@ export function PersonEditor({
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(next.correo.trim())
     )
       result.correo = "Escribe un correo válido, como nombre@correo.com.";
-    return result;
+    return { ...result, ...validateLocation(next, person ? fromPerson(person) : undefined), ...pendingLocation };
   }
   function update(name: keyof Values, value: string) {
     const next = { ...values, [name]: value };
@@ -94,7 +98,7 @@ export function PersonEditor({
   }
   function close() {
     if (busy) return;
-    if (JSON.stringify([values, [...selectedRoles].sort()]) !== initial.current)
+    if (JSON.stringify([values, [...selectedRoles].sort()]) !== initial.current || Object.keys(pendingLocation).length)
       setDiscard(true);
     else onClose();
   }
@@ -122,6 +126,10 @@ export function PersonEditor({
       const result = await api.savePerson(
         {
           ...values,
+          // Preservar incluso null y la escritura original si solo se editaron datos de contacto.
+          ...(person && sameGeography(values, fromPerson(person)) ? {
+            pais: person.pais, departamento: person.departamento, ciudad: person.ciudad,
+          } : {}),
           nombres: values.nombres.trim(),
           numeroDocumento: values.numeroDocumento.trim(),
           correo: values.correo.trim() || null,
@@ -285,12 +293,19 @@ export function PersonEditor({
                 type: "tel",
               })}
             </div>
-            {input("direccion", "Dirección")}
-            <div className="form-grid">
-              {input("ciudad", "Ciudad")}
-              {input("departamento", "Departamento")}
-            </div>
-            {input("pais", "País")}
+            <LocationSelector key={`${open}-${person?.id || 'new'}`} value={values}
+              original={person ? fromPerson(person) : undefined} errors={{ ...errors, ...pendingLocation }}
+              onChange={location => {
+                const next = { ...values, ...location };
+                setValues(next);
+                setErrors(validateLocation(next, person ? fromPerson(person) : undefined));
+              }}
+              onPending={(name, pending) => setPendingLocation(previous => {
+                const next = { ...previous };
+                if (pending) next[name] = 'Elige una opción de la lista para confirmar el nombre.';
+                else delete next[name];
+                return next;
+              })} />
             <Field name="observaciones" label="Observaciones">
               {(props) => (
                 <textarea

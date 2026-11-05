@@ -297,7 +297,7 @@ test("errores de consulta no se presentan como historial vacío", async ({ page 
   await page.goto("/facturas/404"); await expect(page.getByRole("alert")).toContainText("Factura no encontrada");
 });
 
-test("pantallas Sorvo responden en ambos temas y movimiento reducido", async ({ page }, info) => {
+test("pantallas Nexo responden en ambos temas y movimiento reducido", async ({ page }, info) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   for (const theme of ["light", "dark"]) {
     await page.goto("/#/apariencia");

@@ -29,7 +29,7 @@ El cliente debe estar activo y tener rol CLIENTE; el vendedor opcional debe esta
 
 ## Comprobante y diseño
 
-Se reutilizaron Urbanist, tokens Sorvo, naranja #F58136, paneles glass, sidebar compacto y header flotante. No se cambió el diseño global. El POS usa dos columnas en escritorio y apila catálogo/resumen en pantallas menores. Las tablas se desplazan dentro de su panel sin desbordar la página. Se conservaron modo oscuro y prefers-reduced-motion.
+Se reutilizaron Urbanist, tokens de Nexo Design System, naranja #F58136, paneles glass, sidebar compacto y header flotante. No se cambió el diseño global. El POS usa dos columnas en escritorio y apila catálogo/resumen en pantallas menores. Las tablas se desplazan dentro de su panel sin desbordar la página. Se conservaron modo oscuro y prefers-reduced-motion.
 
 `window.print()` y `@media print` producen un comprobante A4 con encabezado Nexo, cliente, productos históricos, totales, pagos, saldo y vendedorId si existe. La impresión elimina navegación, diálogos y notificaciones; permite repetir encabezados de tabla y partir texto largo. No incluye datos tributarios inventados ni afirmaciones de facturación electrónica.
 

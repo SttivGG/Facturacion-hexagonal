@@ -5,23 +5,29 @@ import com.sttiv.facturacion.domain.model.*;
 import com.sttiv.facturacion.domain.port.FacturaRepositoryPort;
 import java.util.*;
 import org.springframework.stereotype.Repository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.*;
 
 @Repository
 @Transactional(readOnly = true)
 public class MySqlFacturaAdapter implements FacturaRepositoryPort {
     private final SpringDataFacturaRepository repositorio;
-    public MySqlFacturaAdapter(SpringDataFacturaRepository repositorio) { this.repositorio = repositorio; }
+    private final ApplicationEventPublisher eventos;
+    public MySqlFacturaAdapter(SpringDataFacturaRepository repositorio, ApplicationEventPublisher eventos) {
+        this.repositorio = repositorio; this.eventos = eventos;
+    }
 
     @Override @Transactional
     public Factura crear(Factura factura) {
         var entidad = repositorio.saveAndFlush(FacturaJpaMapper.entidad(factura));
         entidad.numeroFactura = "FAC-" + entidad.id;
         repositorio.flush();
+        eventos.publishEvent(new FacturacionConfirmada());
         return FacturaJpaMapper.dominio(entidad);
     }
     @Override public Optional<Factura> buscarPorId(Long id) { return repositorio.findById(id).map(FacturaJpaMapper::dominio); }
-    @Override public List<Factura> listar() {
+    @Override @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
+    public List<Factura> listar() {
         return repositorio.findAllByOrderByIdDesc().stream().map(FacturaJpaMapper::dominio).toList();
     }
     @Override public List<Factura> buscarPorCliente(UUID id) {
@@ -36,6 +42,7 @@ public class MySqlFacturaAdapter implements FacturaRepositoryPort {
         FacturaJpaMapper.actualizarSaldo(entidad, actualizada);
         entidad.pagos.add(FacturaJpaMapper.pago(entidad, pago));
         repositorio.saveAndFlush(entidad);
+        eventos.publishEvent(new FacturacionConfirmada());
         return FacturaJpaMapper.dominio(entidad);
     }
 }

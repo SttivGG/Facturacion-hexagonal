@@ -1,14 +1,14 @@
-# Fase 6A.1 · Reconstrucción visual de Nexo
+# Fase 6A.1 · Identidad visual de Nexo
 
-## Referencia e inspección
+## Nexo Design System
 
-Se inspeccionó el [demo público de Sorvo](https://demo.codeandchill.store/sorvo/#/home) en Chrome y se capturó su tema claro a **1249 × 1295 px**. La inspección confirmó Urbanist, paneles blancos translúcidos, acento naranja, barra compacta, header flotante, hero horizontal, actividad y KPI pastel en dos columnas. La [ficha oficial](https://codeandchill.store/templates/sorvo) describe sus temas, fondos y controles de vidrio.
+Nexo Design System es el sistema visual propio de la aplicación: tipografía Urbanist, paneles translúcidos, acento naranja, barra compacta de iconos, header flotante, hero horizontal, actividad y KPI pastel en dos columnas. Este informe conserva las medidas y verificaciones de la Fase 6A.1 a **1249 × 1295 px**.
 
-El adjunto de esta fase contenía el texto de la directriz; las dos imágenes mencionadas no estaban presentes entre los archivos disponibles. La comparación usa la captura obtenida directamente del demo claro y una captura de Nexo tomada al iniciar el trabajo. Las imágenes del demo solo se conservan como evidencia de referencia; no se sirven como recursos de Nexo.
+Las capturas documentan el sistema Nexo antes y después de esa fase. La denominación del sistema visual no atribuye a Nexo la autoría de las fotografías ni de la fuente: su procedencia y licencias se conservan en la sección de recursos.
 
 ## Auditoría y reconstrucción
 
-La versión inicial tenía una barra de 242 px, header plano, fondo azul petróleo/verde, KPI superiores en cuatro columnas y dos paneles del mismo nivel. Se sustituyó esa estructura visual por la jerarquía de la referencia:
+La versión inicial tenía una barra de 242 px, header plano, fondo azul petróleo/verde, KPI superiores en cuatro columnas y dos paneles del mismo nivel. La Fase 6A.1 estableció esta estructura:
 
 1. Barra blanca translúcida de 84 px, a 16 px de los bordes, con marca naranja, iconos y tooltips. La barra queda fija y siempre visible, sin expansión, contracción ni panel de navegación móvil. En móvil mide 72 px y mantiene los bordes redondeados de 28 px, separada 8 px de la ventana.
 2. Header de cristal independiente de 64 px, breadcrumb, búsqueda funcional, tema, actualización real y acceso a Nueva venta.
@@ -17,32 +17,30 @@ La versión inicial tenía una barra de 242 px, header plano, fondo azul petról
 5. Actividad horizontal de 267 px, seguida de cuatro KPI pastel en dos columnas.
 6. Catálogo reciente, categorías, estados, resumen financiero y cambios recientes conservados debajo.
 
-| Elemento a 1249 × 1295 | Sorvo claro | Nexo reconstruido |
-| --- | --- | --- |
-| Barra lateral visible | ~84 px | 84 px |
-| Header flotante | 64 px | 64 px |
-| Inicio horizontal del contenido | 108 px | 108 px |
-| Hero | 1121 × 470 px | 1121 × 470 px |
-| Posición vertical del hero | ~188 px | ~188 px |
-| Actividad | 1121 × ~267 px | 1121 × 267 px |
-| Separación entre secciones | 18 px | 18 px |
-| KPI | 2 columnas, 128 px de altura | 2 columnas, 128 px de altura |
-| Radio de tarjetas principales | 22 px | 22 px |
-| Tipografía | Urbanist | Urbanist variable local |
-
-Las medidas finales de Nexo se guardan en [nexo-medidas.json](capturas/fase6a1/nexo-medidas.json). La comparación de 84 px del sidebar de Sorvo corresponde a la franja compacta visible en su captura.
-
-## Comparación visual
-
-| Referencia: Sorvo claro | Nexo: reconstrucción |
+| Elemento a 1249 × 1295 | Nexo |
 | --- | --- |
-| ![Sorvo claro a 1249 por 1295](capturas/fase6a1/sorvo-claro.png) | ![Nexo reconstruido a 1249 por 1295](capturas/fase6a1/nexo-despues.png) |
+| Barra lateral visible | 84 px |
+| Header flotante | 64 px |
+| Inicio horizontal del contenido | 108 px |
+| Hero | 1121 × 470 px |
+| Posición vertical del hero | ~188 px |
+| Actividad | 1121 × 267 px |
+| Separación entre secciones | 18 px |
+| KPI | 2 columnas, 128 px de altura |
+| Radio de tarjetas principales | 22 px |
+| Tipografía | Urbanist variable local |
+
+Las medidas de esa fase se guardan en [nexo-medidas.json](capturas/fase6a1/nexo-medidas.json).
+
+## Evidencia visual de Nexo
+
+![Nexo a 1249 por 1295](capturas/fase6a1/nexo-despues.png)
 
 [Nexo antes del rediseño](capturas/fase6a1/nexo-antes.png) · [Después, tamaño original](capturas/fase6a1/nexo-despues.png) · [Tema oscuro](capturas/fase6a1/nexo-oscuro.png) · [Tablet](capturas/fase6a1/nexo-tablet.png) · [Móvil](capturas/fase6a1/nexo-movil.png).
 
 Pantallas de trabajo: [Productos](capturas/fase6a1/nexo-productos.png), [Personas](capturas/fase6a1/nexo-personas.png), [Apariencia](capturas/fase6a1/nexo-apariencia.png) y [formulario lateral](capturas/fase6a1/nexo-formulario.png).
 
-Las fotografías son distintas de las del template. El área de evolución y la actividad muestran estados vacíos cuando las facturas disponibles no alcanzan para dibujar una serie; mantienen el espacio y la jerarquía de la referencia. Los datos y las operaciones disponibles corresponden a Nexo.
+El área de evolución y la actividad muestran estados vacíos cuando las facturas disponibles no alcanzan para dibujar una serie; mantienen el espacio y la jerarquía visual. Los datos y las operaciones disponibles corresponden a Nexo.
 
 ## Sistema visual y recursos
 
@@ -62,7 +60,7 @@ Se conservaron `api.ts`, los contratos TypeScript, los editores de productos/per
 
 La evolución usa totales diarios de `/api/facturas`, agrupados por fecha de Colombia en los últimos 30 días; se dibuja con al menos dos días con facturas. La actividad cuenta facturas reales por día. Las sumas monetarias de presentación conservan centavos con BigInt. Los cálculos transaccionales siguen en Spring Boot. Los indicadores generales mantienen el historial completo y la etiqueta de hasta 100 clientes por rol.
 
-Facturas, Nueva venta y Créditos y pagos conservan sus pantallas de próxima Fase 6B. Los accesos conducen a esas pantallas informativas; no emiten facturas ni registran pagos.
+Al cierre de la Fase 6A.1, Facturas, Nueva venta y Créditos y pagos tenían pantallas informativas. La [Fase 6B](FASE6B-VERIFICACION.md) incorporó después la emisión de facturas y el registro de pagos; esas funciones están disponibles en la versión actual.
 
 ## Verificación reproducible
 
@@ -79,7 +77,7 @@ node scripts/capture-redesign.mjs
 
 Antes de una nueva verificación, `node scripts/check-api-state.mjs before` registra hashes de lectura y conteos de productos, facturas y los cuatro roles; la comparación posterior requiere ese registro. Los archivos no guardan contenido personal. Deben compararse sin modificaciones concurrentes del negocio.
 
-La suite conserva las verificaciones anteriores de API, formularios, descarte, roles, filtros, preferencias, navegación y movimiento reducido. Añade inicio claro frente a preferencias antiguas, medidas de referencia, las siete rutas e imágenes reales. Se ejecuta a 1440×1000, 768×1024 y 375×812; las medidas de referencia se comprueban además a 1249×1295. Las solicitudes de escritura están bloqueadas en las pruebas de interfaz/rediseño.
+La suite conserva las verificaciones anteriores de API, formularios, descarte, roles, filtros, preferencias, navegación y movimiento reducido. Añade inicio claro frente a preferencias antiguas, medidas del diseño, las siete rutas e imágenes reales. Se ejecuta a 1440×1000, 768×1024 y 375×812; las medidas del diseño se comprueban además a 1249×1295. Las solicitudes de escritura están bloqueadas en las pruebas de interfaz/rediseño.
 
 El ajuste de la barra fija verifica que permanece visible al desplazarse, navegar y recargar, sin expandirse al pasar por sus iconos. También se revisaron cinco pantallas a 320 y 600 px sin desbordamiento horizontal. Capturas actualizadas de la barra en [escritorio](capturas/barra-fija/escritorio.png) y [móvil](capturas/barra-fija/movil.png).
 

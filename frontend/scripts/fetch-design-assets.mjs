@@ -48,5 +48,5 @@ await download(
 );
 await writeFile(
   new URL("CREDITOS.md", media),
-  `# Fotografías de Nexo\n\nDescargadas el 4 de noviembre de 2026. Licencia Unsplash: https://unsplash.com/license\nSon fotografías de ambientación, no productos del catálogo ni registros del negocio.\n\n${photos.map(([name, id, width, quality]) => `- ${name}: https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=${quality}&fm=webp`).join("\n")}\n\nNingún recurso proviene de Sorvo. Urbanist se distribuye aparte bajo SIL OFL 1.1 en /fonts/OFL-Urbanist.txt.\n`,
+  `# Fotografías de Nexo\n\nDescargadas el 4 de noviembre de 2026. Licencia Unsplash: https://unsplash.com/license\nSon fotografías de ambientación, no productos del catálogo ni registros del negocio.\n\n${photos.map(([name, id, width, quality]) => `- ${name}: https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=${quality}&fm=webp`).join("\n")}\n\nUrbanist se distribuye aparte bajo SIL OFL 1.1 en /fonts/OFL-Urbanist.txt. La denominación Nexo Design System no cambia la autoría ni las licencias de estos recursos.\n`,
 );

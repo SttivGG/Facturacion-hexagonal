@@ -111,24 +111,33 @@ async function save(editor: Locator) {
   await editor.getByRole("button", { name: "Guardar producto", exact: true }).click();
   await expect(editor).not.toBeVisible();
 }
+async function selectProvider(editor: Locator, name: RegExp) {
+  const input = editor.getByRole("combobox", { name: "Buscar proveedor", exact: true });
+  await input.click();
+  await editor.getByRole("option", { name }).click();
+  await expect(input).toHaveAttribute("aria-expanded", "false");
+  await expect(input).toBeFocused();
+}
 
 test("consulta el endpoint real del contrato, filtra activos y roles, busca sin tildes y guarda UUID", async ({ page }, info) => {
   const editor = await openNew(page);
-  await expect(editor.getByRole("radio", { name: /Distribuciones Andina/ })).toBeVisible();
+  await editor.getByRole("combobox").click();
+  await expect(editor.getByRole("option", { name: /Distribuciones Andina/ })).toBeVisible();
   expect(reads).toContain("/api/personas/rol/PROVEEDOR");
-  await expect(editor.getByRole("radio", { name: /Proveedor Inactivo|Solo Cliente/ })).toHaveCount(0);
+  await expect(editor.getByRole("option", { name: /Proveedor Inactivo|Solo Cliente/ })).toHaveCount(0);
   await expect(editor.getByLabel("ID del proveedor", { exact: true })).toHaveCount(0);
-  const search = editor.getByRole("searchbox", { name: "Buscar proveedor", exact: true });
+  const search = editor.getByRole("combobox", { name: "Buscar proveedor", exact: true });
   for (const term of ["bogota", "900111222", "andina"]) {
     await search.fill(term);
-    await expect(editor.getByRole("radio", { name: /Distribuciones Andina/ })).toBeVisible();
-    await expect(editor.getByRole("radio", { name: /Suministros del Sur/ })).toHaveCount(0);
+    await expect(editor.getByRole("option", { name: /Distribuciones Andina/ })).toBeVisible();
+    await expect(editor.getByRole("option", { name: /Suministros del Sur/ })).toHaveCount(0);
   }
   await search.press("Enter");
   expect(writes).toHaveLength(0);
-  await editor.getByRole("radio", { name: /Distribuciones Andina/ }).check();
+  await expect(search).toHaveValue("Distribuciones Andina");
+  await expect(search).toHaveAttribute("aria-expanded", "false");
   await editor.locator(".provider-selector").scrollIntoViewIfNeeded();
-  await page.screenshot({ path: info.outputPath("selector.png") });
+  await page.screenshot({ animations: "disabled", path: info.outputPath("selector.png") });
   await save(editor);
   expect(writes[0].body.proveedorId).toBe(a.id);
   expect(writes[0].body.precioVenta).toBe("9007199254740993.01");
@@ -136,14 +145,14 @@ test("consulta el endpoint real del contrato, filtra activos y roles, busca sin 
 
 test("guarda producto sin proveedor", async ({ page }) => {
   const editor = await openNew(page);
-  await expect(editor.getByRole("radio", { name: /Sin proveedor/ })).toBeChecked();
+  await expect(editor.getByRole("combobox")).toHaveValue("Sin proveedor");
   await save(editor);
   expect(writes[0].body.proveedorId).toBeNull();
 });
 
 test("edita proveedor existente sin cambiar UUID ni imagen", async ({ page }) => {
   const editor = await openEdit(page, a.id);
-  await expect(editor.getByRole("radio", { name: /Distribuciones Andina/ })).toBeChecked();
+  await expect(editor.getByRole("combobox")).toHaveValue("Distribuciones Andina");
   await editor.getByLabel("Nombre", { exact: false }).fill("Producto actualizado");
   await save(editor);
   expect(reads).toContain(`/api/personas/${a.id}`);
@@ -153,11 +162,11 @@ test("edita proveedor existente sin cambiar UUID ni imagen", async ({ page }) =>
 
 test("cambia de proveedor y permite retirar la asociación", async ({ page }) => {
   let editor = await openEdit(page, a.id);
-  await editor.getByRole("radio", { name: /Suministros del Sur/ }).check();
+  await selectProvider(editor, /Suministros del Sur/);
   await save(editor);
   expect(writes[0].body.proveedorId).toBe(b.id);
   editor = await openEdit(page, b.id);
-  await editor.getByRole("radio", { name: /Sin proveedor/ }).check();
+  await selectProvider(editor, /Sin proveedor/);
   await save(editor);
   expect(writes[1].body.proveedorId).toBeNull();
 });
@@ -165,7 +174,7 @@ test("cambia de proveedor y permite retirar la asociación", async ({ page }) =>
 for (const [name, provider] of [["inactivo", inactive], ["sin rol", customer], ["fuera del límite", outside]] as const) {
   test(`resuelve proveedor histórico ${name} y conserva asociación`, async ({ page }) => {
     const editor = await openEdit(page, provider.id);
-    await expect(editor.getByRole("radio", { name: new RegExp(provider.nombres) })).toBeChecked();
+    await expect(editor.getByRole("combobox")).toHaveValue(new RegExp(provider.nombres));
     if (name === "inactivo") await expect(editor.getByText("Inactivo · La asociación histórica se conserva.", { exact: true })).toBeVisible();
     if (name === "sin rol") await expect(editor.getByText(/Ya no tiene rol Proveedor/)).toBeVisible();
     await save(editor);
@@ -184,7 +193,7 @@ test("el estado canónico por ID prevalece sobre una lista por rol desactualizad
   canonical.set(a.id, { ...a, activo: false });
   const editor = await openEdit(page, a.id);
   await expect(editor.getByText("Inactivo · La asociación histórica se conserva.", { exact: true })).toBeVisible();
-  await expect(editor.getByRole("radio", { name: /Distribuciones Andina/ })).toBeChecked();
+  await expect(editor.getByRole("combobox")).toHaveValue("Distribuciones Andina");
   await save(editor);
   expect(writes[0].body.proveedorId).toBe(a.id);
 });
@@ -196,7 +205,7 @@ test("fallos de Cassandra conservan referencia y permiten reintentar", async ({ 
   await expect(editor.getByText(/No se pudo consultar el proveedor asociado/)).toBeVisible();
   failRole = false; failReference = false;
   await editor.getByRole("button", { name: "Reintentar consulta de proveedores" }).click();
-  await expect(editor.getByRole("radio", { name: /Proveedor Fuera del Límite/ })).toBeChecked();
+  await expect(editor.getByRole("combobox")).toHaveValue("Proveedor Fuera del Límite");
   await save(editor);
   expect(writes[0].body.proveedorId).toBe(outside.id);
 });
@@ -214,6 +223,7 @@ test("estado de carga y lista vacía; crear proveedor reutiliza Personas y prese
   roleRows = [];
   roleGate = new Promise<void>(resolve => { release = resolve; });
   const editor = await openNew(page);
+  await editor.getByRole("combobox").click();
   await expect(editor.getByText("Cargando proveedores…", { exact: true })).toBeVisible();
   release();
   await expect(editor.getByText("No hay proveedores registrados. Puedes crear uno desde Personas.", { exact: true })).toBeVisible();
@@ -226,7 +236,7 @@ test("estado de carga y lista vacía; crear proveedor reutiliza Personas y prese
   await personEditor.getByRole("button", { name: "Guardar persona" }).click();
   await expect(personEditor).not.toBeVisible();
   await expect(editor.getByLabel("Nombre", { exact: false })).toHaveValue(baseProduct.nombre);
-  await expect(editor.getByRole("radio", { name: /Proveedor nuevo/ })).toBeChecked();
+  await expect(editor.getByRole("combobox")).toHaveValue("Proveedor nuevo");
   await expect(editor.locator("[data-provider-current]")).toBeFocused();
   await save(editor);
   expect(writes[0].body.roles).toEqual(["PROVEEDOR"]);
@@ -236,13 +246,13 @@ test("estado de carga y lista vacía; crear proveedor reutiliza Personas y prese
 test("avisa del límite y busca por documento fuera de la lista", async ({ page }) => {
   const editor = await openNew(page);
   await expect(editor.getByText(/La consulta por rol devuelve hasta 100 personas/)).toBeVisible();
-  await editor.getByRole("searchbox", { name: "Buscar proveedor", exact: true }).fill("no existe en esta lista");
+  await editor.getByRole("combobox", { name: "Buscar proveedor", exact: true }).fill("no existe en esta lista");
   await expect(editor.getByText(/Sin coincidencias en los registros cargados/)).toBeVisible();
   await editor.getByText("Buscar en todas las personas por documento", { exact: true }).click();
   await editor.getByLabel("Tipo de documento del proveedor", { exact: true }).fill("NIT");
   await editor.getByLabel("Número de documento del proveedor", { exact: true }).fill(outside.numeroDocumento);
   await editor.getByRole("button", { name: "Buscar y seleccionar por documento" }).click();
-  await expect(editor.getByRole("radio", { name: /Proveedor Fuera del Límite/ })).toBeChecked();
+  await expect(editor.getByRole("combobox")).toHaveValue("Proveedor Fuera del Límite");
   await save(editor);
   expect(writes[0].body.proveedorId).toBe(outside.id);
 });
@@ -257,45 +267,56 @@ test("buscar documento inexistente o no elegible no borra la selección", async 
     await editor.getByLabel("Número de documento del proveedor", { exact: true }).fill(documentNumber);
     await editor.getByRole("button", { name: "Buscar y seleccionar por documento" }).click();
     await expect(editor.getByRole("alert")).toBeVisible();
-    await expect(editor.getByRole("radio", { name: /Suministros del Sur/ })).toBeChecked();
+    await expect(editor.getByRole("combobox")).toHaveValue("Suministros del Sur");
   }
   await save(editor);
   expect(writes[0].body.proveedorId).toBe(b.id);
 });
 
-test("teclado: radios nativos, flechas, foco visible y confirmación sin desmontar producto", async ({ page }) => {
+test("teclado: combobox, flechas, Enter, Escape y confirmación sin desmontar producto", async ({ page }) => {
   const editor = await openNew(page);
-  const none = editor.getByRole("radio", { name: /Sin proveedor/ });
-  const first = editor.getByRole("radio", { name: /Distribuciones Andina/ });
-  const second = editor.getByRole("radio", { name: /Suministros del Sur/ });
+  const input = editor.getByRole("combobox");
+  const first = editor.getByRole("option", { name: /Distribuciones Andina/ });
+  const second = editor.getByRole("option", { name: /Suministros del Sur/ });
+  await input.focus();
+  await input.press("ArrowDown");
+  await expect(editor.getByRole("listbox", { name: "Proveedor del producto" })).toBeVisible();
   await expect(first).toBeVisible();
-  await none.focus();
-  await none.press("ArrowDown");
-  await expect(first).toBeChecked();
-  await expect(first).toBeFocused();
-  await first.press("ArrowDown");
-  await expect(second).toBeChecked();
-  await expect(second).toBeFocused();
-  await expect(editor.getByRole("radiogroup", { name: "Proveedor del producto" })).toBeVisible();
-  const outline = await second.evaluate(element => getComputedStyle(element.closest("label")!).outlineStyle);
+  await input.press("ArrowDown");
+  await expect(input).toHaveAttribute("aria-activedescendant", await first.getAttribute("id") as string);
+  await input.press("ArrowDown");
+  await expect(input).toHaveAttribute("aria-activedescendant", await second.getAttribute("id") as string);
+  await expect(input).toBeFocused();
+  const outline = await input.evaluate(element => getComputedStyle(element.closest(".provider-control")!).outlineStyle);
   expect(outline).toBe("solid");
+  await input.press("Enter");
+  await expect(input).toHaveValue("Suministros del Sur");
+  await input.press("ArrowUp");
+  await input.press("Home");
+  await input.press("End");
+  await expect(input).toHaveAttribute("aria-activedescendant", await second.getAttribute("id") as string);
+  await input.press("Escape");
+  await expect(input).toHaveValue("Suministros del Sur");
+  await expect(input).toHaveAttribute("aria-expanded", "false");
+  await expect(input).not.toHaveAttribute("aria-activedescendant");
+  await expect(editor).toBeVisible();
   await page.evaluate(() => { (document.querySelector("#product-form") as HTMLElement).dataset.stillMounted = "yes"; });
   await editor.getByRole("button", { name: "Cancelar", exact: true }).click();
   const confirmation = page.getByRole("dialog", { name: "¿Descartar los cambios?", exact: true });
   await confirmation.getByRole("button", { name: "Volver", exact: true }).click();
   await expect(confirmation).not.toBeVisible();
   await expect(editor.locator("#product-form")).toHaveAttribute("data-still-mounted", "yes");
-  await expect(second).toBeChecked();
+  await expect(input).toHaveValue("Suministros del Sur");
   await expect(editor.getByLabel("Nombre", { exact: false })).toHaveValue(baseProduct.nombre);
 });
 
 test("rechazo al guardar conserva el UUID y los datos introducidos", async ({ page }) => {
   const editor = await openNew(page);
-  await editor.getByRole("radio", { name: /Distribuciones Andina/ }).check();
+  await selectProvider(editor, /Distribuciones Andina/);
   failSave = true;
   await editor.getByRole("button", { name: "Guardar producto", exact: true }).click();
   await expect(editor.getByRole("alert")).toContainText("El proveedor seleccionado está inactivo");
-  await expect(editor.getByRole("radio", { name: /Distribuciones Andina/ })).toBeChecked();
+  await expect(editor.getByRole("combobox")).toHaveValue("Distribuciones Andina");
   await expect(editor.getByLabel("SKU", { exact: false })).toHaveValue(baseProduct.sku);
   failSave = false;
   await save(editor);
@@ -311,30 +332,79 @@ test("lista de 100 registros: temas, movimiento reducido y orientación horizont
   roleRows.forEach(person => canonical.set(person.id, person));
   await page.emulateMedia({ reducedMotion: "reduce" });
   const editor = await openNew(page);
-  await expect(editor.getByRole("radio")).toHaveCount(101);
+  await editor.getByRole("combobox").click();
+  await expect(editor.getByRole("option")).toHaveCount(101);
   for (const theme of ["light", "dark"]) {
     await page.evaluate(value => { document.documentElement.dataset.theme = value; }, theme);
     const selector = editor.locator(".provider-selector");
-    await selector.scrollIntoViewIfNeeded();
     expect(await selector.evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBeTruthy();
     const options = editor.locator(".provider-options");
     expect(await options.evaluate(element => element.scrollHeight > element.clientHeight)).toBeTruthy();
-    await page.screenshot({ path: info.outputPath(`selector-${theme}.png`) });
+    const panel = editor.locator(".provider-popover");
+    expect(await panel.evaluate(element => element.matches(":popover-open"))).toBeTruthy();
+    expect(await panel.evaluate(element => getComputedStyle(element).backdropFilter)).toContain("blur");
+    expect(await panel.evaluate(element => parseFloat(getComputedStyle(element).transitionDuration))).toBeLessThanOrEqual(.001);
+    const box = (await panel.boundingBox())!;
+    const viewport = page.viewportSize()!;
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+    await page.screenshot({ animations: "disabled", path: info.outputPath(`selector-${theme}.png`) });
   }
   await page.setViewportSize({ width: 844, height: 390 });
-  const search = editor.getByRole("searchbox", { name: "Buscar proveedor", exact: true });
+  const search = editor.getByRole("combobox", { name: "Buscar proveedor", exact: true });
   await search.fill("900000099");
-  await expect(editor.getByRole("radio")).toHaveCount(2);
-  await editor.getByRole("radio").nth(1).check();
-  await expect(editor.getByRole("radio").nth(1)).toBeChecked();
-  const label = editor.locator(".provider-option:has(input:checked)");
+  await expect(editor.getByRole("option")).toHaveCount(2);
+  const label = editor.getByRole("option").nth(1);
   expect((await label.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await label.click();
+  await expect(search).toHaveValue(/nombre extenso 99/);
   expect(await editor.evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBeTruthy();
+});
+
+test("búsqueda sin resultados, Tab y clic externo conservan la selección", async ({ page }) => {
+  const editor = await openEdit(page, a.id);
+  const input = editor.getByRole("combobox");
+  await expect(input).toHaveValue("Distribuciones Andina");
+  await input.fill("no existe");
+  await expect(editor.getByText("Sin coincidencias en los registros cargados.", { exact: true })).toBeVisible();
+  await input.press("Enter");
+  await expect(input).toHaveAttribute("aria-expanded", "true");
+  await input.press("Tab");
+  await expect(input).toHaveValue("Distribuciones Andina");
+  await input.click();
+  await editor.getByText("Precios y proveedor", { exact: true }).click();
+  await expect(input).toHaveAttribute("aria-expanded", "false");
+  await save(editor);
+  expect(writes[0].body.proveedorId).toBe(a.id);
+});
+
+test("capturas de estados del selector integrado en ProductEditor", async ({ page }, info) => {
+  const editor = await openNew(page);
+  const input = editor.getByRole("combobox");
+  await input.scrollIntoViewIfNeeded();
+  await page.screenshot({ animations: "disabled", path: info.outputPath("cerrado.png") });
+  await input.click();
+  await expect(editor.getByRole("option")).toHaveCount(3);
+  await page.screenshot({ animations: "disabled", path: info.outputPath("desplegado.png") });
+  await input.fill("bogota");
+  await expect(editor.getByRole("option")).toHaveCount(2);
+  await page.screenshot({ animations: "disabled", path: info.outputPath("busqueda.png") });
+  await input.press("Enter");
+  await expect(input).toHaveValue("Distribuciones Andina");
+  await page.screenshot({ animations: "disabled", path: info.outputPath("seleccionado.png") });
+  await input.fill("sin coincidencias");
+  await expect(editor.getByText("Sin coincidencias en los registros cargados.", { exact: true })).toBeVisible();
+  await page.screenshot({ animations: "disabled", path: info.outputPath("vacio.png") });
+  await page.evaluate(() => { document.documentElement.dataset.theme = "dark"; });
+  await input.fill("");
+  await page.screenshot({ animations: "disabled", path: info.outputPath("oscuro.png") });
 });
 
 test("imagen: reintenta tras guardado parcial usando PUT y mantiene proveedor y precisión", async ({ page }) => {
   const editor = await openNew(page);
-  await editor.getByRole("radio", { name: /Distribuciones Andina/ }).check();
+  await selectProvider(editor, /Distribuciones Andina/);
   await editor.getByLabel("Imagen del producto", { exact: true }).setInputFiles({ name: "prueba.png", mimeType: "image/png", buffer: png });
   failImage = true;
   await editor.getByRole("button", { name: "Guardar producto", exact: true }).click();
@@ -348,4 +418,19 @@ test("imagen: reintenta tras guardado parcial usando PUT y mantiene proveedor y 
   expect(products).toHaveLength(1);
   expect(products[0].imagenId).toBe("gridfs-7d");
   expect(products[0].precioVenta).toBe("9007199254740993.01");
+});
+
+test("táctil: abre desde el icono y selecciona sin perder el foco", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "La interacción táctil se comprueba en tablet y móvil.");
+  const editor = await openNew(page);
+  const input = editor.getByRole("combobox");
+  await editor.locator(".provider-chevron").tap();
+  await expect(input).toHaveAttribute("aria-expanded", "true");
+  await editor.getByRole("option", { name: /Distribuciones Andina/ }).tap();
+  await expect(input).toHaveValue("Distribuciones Andina");
+  await expect(input).toHaveAttribute("aria-expanded", "false");
+  await expect(input).toBeFocused();
+  await input.tap();
+  await editor.getByRole("option", { name: /Sin proveedor/ }).tap();
+  await expect(input).toHaveValue("Sin proveedor");
 });

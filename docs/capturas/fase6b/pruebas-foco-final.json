@@ -7,7 +7,7 @@
       "tests/sales.spec.ts",
       "tests/interface.spec.ts",
       "--grep",
-      "registra un cliente|contado admite|abono actualiza|pantallas Sorvo|el descarte|personas valida|movimiento reducido y búsqueda",
+      "registra un cliente|contado admite|abono actualiza|pantallas Nexo|el descarte|personas valida|movimiento reducido y búsqueda",
       "--reporter=list,json"
     ],
     "configFile": "D:\\ITP\\Septimo Semestre\\Programación Avanzada\\corte3\\facturacion-hexagonal\\frontend\\playwright.config.ts",
@@ -625,7 +625,7 @@
           "column": 1
         },
         {
-          "title": "pantallas Sorvo responden en ambos temas y movimiento reducido",
+          "title": "pantallas Nexo responden en ambos temas y movimiento reducido",
           "ok": true,
           "tags": [],
           "tests": [
@@ -761,7 +761,7 @@
           "column": 1
         },
         {
-          "title": "pantallas Sorvo responden en ambos temas y movimiento reducido",
+          "title": "pantallas Nexo responden en ambos temas y movimiento reducido",
           "ok": true,
           "tags": [],
           "tests": [
@@ -897,7 +897,7 @@
           "column": 1
         },
         {
-          "title": "pantallas Sorvo responden en ambos temas y movimiento reducido",
+          "title": "pantallas Nexo responden en ambos temas y movimiento reducido",
           "ok": true,
           "tags": [],
           "tests": [

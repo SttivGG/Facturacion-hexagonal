@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { Check, ChevronDown, LoaderCircle, Search, Truck, UserPlus, RefreshCw } from "lucide-react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { api, ApiError } from "../api";
 import type { Persona } from "../types";
 import { Field } from "./forms";
@@ -30,6 +31,71 @@ export function ProviderSelector({ value, onChange, active, disabled, knownProvi
   const [looking, setLooking] = useState(false);
   const [lookupError, setLookupError] = useState("");
   const lookup = useRef<AbortController | null>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const control = useRef<HTMLDivElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLFieldSetElement>(null);
+  const [open, setOpen] = useState(false);
+  const [highlighted, setHighlighted] = useState(0);
+
+  useEffect(() => { if (!active || disabled) setOpen(false); }, [active, disabled]);
+
+  // A popover stays inside the modal's focus scope while its top layer escapes
+  // the drawer's scrolling/clipping surfaces. Its entire appearance is Nexo CSS.
+  useLayoutEffect(() => {
+    const popup = panel.current;
+    if (!popup) return;
+    if (!open) {
+      if (popup.matches(":popover-open")) popup.hidePopover();
+      return;
+    }
+    function position() {
+      const anchor = control.current?.getBoundingClientRect();
+      if (!anchor || !popup) return;
+      const viewport = window.visualViewport;
+      const top = viewport?.offsetTop ?? 0;
+      const left = viewport?.offsetLeft ?? 0;
+      const width = viewport?.width ?? window.innerWidth;
+      const bottom = top + (viewport?.height ?? window.innerHeight);
+      const below = bottom - anchor.bottom - 14;
+      const above = anchor.top - top - 14;
+      const upwards = below < 300 && above > below;
+      const height = Math.max(0, Math.min(330, upwards ? above : below));
+      const popupWidth = Math.min(anchor.width, width - 24);
+      popup.style.width = `${popupWidth}px`;
+      popup.style.left = `${Math.max(left + 12, Math.min(anchor.left, left + width - popupWidth - 12))}px`;
+      popup.style.maxHeight = `${height}px`;
+      popup.style.top = upwards ? "auto" : `${anchor.bottom + 6}px`;
+      popup.style.bottom = upwards ? `${window.innerHeight - anchor.top + 6}px` : "auto";
+      popup.dataset.side = upwards ? "above" : "below";
+      if (anchor.bottom < top || anchor.top > bottom) setOpen(false);
+    }
+    position();
+    popup.showPopover();
+    const observer = new ResizeObserver(position);
+    if (control.current) observer.observe(control.current);
+    window.addEventListener("resize", position);
+    window.addEventListener("scroll", position, true);
+    window.visualViewport?.addEventListener("resize", position);
+    window.visualViewport?.addEventListener("scroll", position);
+    const outside = (event: PointerEvent) => {
+      if (!root.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", outside);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", position);
+      window.removeEventListener("scroll", position, true);
+      window.visualViewport?.removeEventListener("resize", position);
+      window.visualViewport?.removeEventListener("scroll", position);
+      document.removeEventListener("pointerdown", outside);
+      if (popup.matches(":popover-open")) popup.hidePopover();
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (open) document.getElementById(`${id}-option-${highlighted}`)?.scrollIntoView({ block: "nearest" });
+  }, [open, highlighted, id, query]);
 
   useEffect(() => {
     if (!active) return;
@@ -96,7 +162,7 @@ export function ProviderSelector({ value, onChange, active, disabled, knownProvi
         return;
       }
       setExtra(rows => [...rows.filter(row => row.id !== person.id), person]);
-      onChange(person.id);
+      choose(person.id);
     } catch (reason) {
       if (!controller.signal.aborted) setLookupError(reason instanceof Error ? reason.message : "No se pudo buscar por documento.");
     } finally {
@@ -104,55 +170,106 @@ export function ProviderSelector({ value, onChange, active, disabled, knownProvi
     }
   }
 
-  const current = resolved.id === value ? resolved.person : undefined;
+  const current = (knownProvider?.id === value ? knownProvider : undefined)
+    || (resolved.id === value ? resolved.person : undefined)
+    || [...people, ...extra].find(person => person.id === value);
   const candidates = [...new Map([...people, ...extra, ...(knownProvider ? [knownProvider] : []), ...(current ? [current] : [])]
     .map(person => [person.id, person])).values()].filter(eligible);
-  const matches = candidates.filter(person => person.id === value || normalize(
+  const matches = candidates.filter(person => normalize(
     `${fullName(person)} ${person.tipoDocumento} ${person.numeroDocumento} ${person.ciudad || ""}`,
   ).includes(normalize(query)));
 
-  return <fieldset className="provider-selector" disabled={disabled}>
+  const choices = [{ id: "", person: undefined as Persona | undefined }, ...matches.map(person => ({ id: person.id, person }))];
+  const activeIndex = highlighted < choices.length ? highlighted : -1;
+  const selectedLabel = value ? current ? fullName(current) : "Proveedor asociado" : "Sin proveedor";
+
+  function expand(last = false) {
+    if (disabled || !active) return;
+    setQuery("");
+    setHighlighted(last ? candidates.length : Math.max(0, candidates.findIndex(person => person.id === value) + 1));
+    setOpen(true);
+  }
+  function choose(next: string) {
+    setOpen(false);
+    setQuery("");
+    onChange(next);
+    input.current?.focus({ preventScroll: true });
+  }
+
+  return <fieldset ref={root} className="provider-selector" disabled={disabled}>
     <legend>Proveedor (opcional)</legend>
     <p className="field-hint" id={`${id}-hint`}>Selecciona una persona activa con rol Proveedor o deja el producto sin proveedor.</p>
-    <Field name="provider-search" label="Buscar proveedor" hint="Busca por nombre, documento o ciudad dentro de los registros cargados.">
-      {props => <input {...props} type="search" value={query} onChange={event => setQuery(event.target.value)}
-        placeholder="Nombre, documento o ciudad" onKeyDown={event => { if (event.key === "Enter") event.preventDefault(); }} />}
-    </Field>
-    <div role="radiogroup" aria-label="Proveedor del producto" aria-describedby={`${id}-hint`}>
-      <label className="provider-option">
-        <input data-provider-current={!value ? true : undefined} type="radio" name={id} checked={!value} onChange={() => onChange("")} />
-        <span><strong>Sin proveedor</strong><small>Puedes asignarlo más adelante.</small></span>
-      </label>
-      {value && !matches.some(person => person.id === value) && <label className="provider-option provider-current">
-        <input data-provider-current type="radio" name={id} checked onChange={() => {}} />
-        <span>
-          <strong>{current ? fullName(current) : "Proveedor asociado"}</strong>
-          {current ? <>
-            <small>{current.tipoDocumento} {current.numeroDocumento}{current.ciudad ? ` · ${current.ciudad}` : ""}</small>
-            {!current.activo && <small>Inactivo · La asociación histórica se conserva.</small>}
-            {!current.roles.includes("PROVEEDOR") && <small>Ya no tiene rol Proveedor · La asociación histórica se conserva.</small>}
-          </> : <small role="status">{resolved.id === value ? resolved.message : "Consultando proveedor asociado…"}</small>}
-        </span>
-      </label>}
-      <div className="provider-options" aria-busy={loading}>
-        {matches.map(person => <label key={person.id} className="provider-option">
-          <input data-provider-current={person.id === value ? true : undefined} type="radio" name={id} checked={person.id === value} onChange={() => onChange(person.id)} />
-          <span><strong>{fullName(person)}</strong><small>{person.tipoDocumento} {person.numeroDocumento}{person.ciudad ? ` · ${person.ciudad}` : ""}</small></span>
-        </label>)}
+    <label className="sr-only" htmlFor={`${id}-input`}>Buscar proveedor</label>
+    <div ref={control} className="provider-control" data-open={open} data-disabled={disabled || undefined}
+      onClick={() => { if (!open && !disabled) { input.current?.focus(); expand(); } }}>
+      {open ? <Search size={19} aria-hidden="true" /> : <Truck size={19} aria-hidden="true" />}
+      <div className="provider-control-value">
+        <input ref={input} id={`${id}-input`} data-provider-current role="combobox" type="text" autoComplete="off"
+          disabled={disabled} aria-expanded={open} aria-controls={open ? `${id}-list` : undefined}
+          aria-autocomplete="list" aria-haspopup="listbox" aria-describedby={`${id}-hint ${id}-selection`}
+          aria-activedescendant={open && activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined}
+          value={open ? query : selectedLabel} placeholder="Nombre, documento o ciudad"
+          onFocus={event => event.currentTarget.select()}
+          onBlur={event => { if (!panel.current?.contains(event.relatedTarget as Node)) setOpen(false); }}
+          onChange={event => {
+            setQuery(event.target.value); setHighlighted(1); setOpen(true);
+          }}
+          onKeyDown={event => {
+            if (event.nativeEvent.isComposing) return;
+            if (event.key === "Escape" && open) { event.preventDefault(); event.stopPropagation(); setOpen(false); }
+            if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+              event.preventDefault();
+              if (!open) expand(event.key === "ArrowUp");
+              else setHighlighted((activeIndex + (event.key === "ArrowDown" ? 1 : choices.length - 1)) % choices.length);
+            }
+            if (open && (event.key === "Home" || event.key === "End")) {
+              event.preventDefault(); setHighlighted(event.key === "Home" ? 0 : choices.length - 1);
+            }
+            if (event.key === "Enter") {
+              event.preventDefault();
+              if (open) { if (activeIndex >= 0) choose(choices[activeIndex].id); } else expand();
+            }
+            if (event.key === "Tab") setOpen(false);
+          }} />
+        <small id={`${id}-selection`} className={open ? "sr-only" : ""}>
+          {value ? current ? `${current.tipoDocumento} ${current.numeroDocumento}${current.ciudad ? ` · ${current.ciudad}` : ""}`
+            : "La asociación guardada se conserva." : "Asignación opcional"}
+        </small>
+      </div>
+      <ChevronDown className="provider-chevron" size={18} aria-hidden="true" />
+    </div>
+    {error && <p className="field-error" role="alert">{error}</p>}
+    <div ref={panel} popover="manual" className="provider-popover" aria-label="Proveedores disponibles">
+      <div className="provider-panel-heading"><span>PROVEEDORES</span><small>{matches.length} {matches.length === 1 ? "disponible" : "disponibles"}</small></div>
+      <div id={`${id}-list`} role="listbox" aria-label="Proveedor del producto" aria-busy={loading} className="provider-options">
+        {choices.map((choice, index) => <div key={choice.id} id={`${id}-option-${index}`} role="option"
+          aria-selected={value === choice.id} data-active={activeIndex === index} className="provider-option"
+          onPointerDown={event => event.preventDefault()} onClick={() => choose(choice.id)}
+          onPointerMove={event => { if (event.pointerType === "mouse") setHighlighted(index); }}>
+          <span className="provider-option-icon" aria-hidden="true"><Truck size={17} /></span>
+          <span className="provider-option-copy"><strong>{choice.person ? fullName(choice.person) : "Sin proveedor"}</strong>
+            <small>{choice.person ? `${choice.person.tipoDocumento} ${choice.person.numeroDocumento}${choice.person.ciudad ? ` · ${choice.person.ciudad}` : ""}` : "Puedes asignarlo más adelante."}</small></span>
+          {value === choice.id && <Check size={18} className="provider-check" aria-hidden="true" />}
+        </div>)}
+      </div>
+      <div className="provider-feedback" role="status" aria-live="polite" aria-atomic="true">
+        {loading ? <><LoaderCircle size={16} className="spin" aria-hidden="true" /> Cargando proveedores…</>
+          : error || (candidates.length === 0 ? people.length === 0
+            ? "No hay proveedores registrados. Puedes crear uno desde Personas."
+            : "No hay proveedores activos en los registros cargados."
+            : matches.length === 0 ? "Sin coincidencias en los registros cargados." : `${matches.length} ${matches.length === 1 ? "proveedor" : "proveedores"}. Usa las flechas y Enter para seleccionar.`)}
       </div>
     </div>
-    {loading && <p role="status">Cargando proveedores…</p>}
-    {error && <p role="alert">{error}</p>}
-    {!loading && !error && candidates.length === 0 && <p role="status">{people.length === 0
-      ? "No hay proveedores registrados. Puedes crear uno desde Personas."
-      : "No hay proveedores activos en los registros cargados."}</p>}
-    {!loading && !error && candidates.length > 0 && matches.length === 0 && query && <p role="status">Sin coincidencias en los registros cargados.</p>}
+    {value && !current && <p className="field-hint" role="status">{resolved.id === value ? resolved.message : "Consultando proveedor asociado…"}</p>}
+    {current && !current.activo && <p className="field-hint" role="status">Inactivo · La asociación histórica se conserva.</p>}
+    {current && !current.roles.includes("PROVEEDOR") && <p className="field-hint" role="status">Ya no tiene rol Proveedor · La asociación histórica se conserva.</p>}
     <p className="field-hint">La consulta por rol devuelve hasta 100 personas, incluidas las inactivas. Esta lista puede ser parcial; la búsqueda por nombre o ciudad se limita a los registros cargados. Para localizar otro proveedor, usa su documento.</p>
     <div className="provider-actions">
       <Button type="button" onClick={() => setRevision(version => version + 1)} disabled={loading}>
+        <RefreshCw size={15} aria-hidden="true" />
         {error || (value && !current) ? "Reintentar consulta de proveedores" : "Actualizar proveedores"}
       </Button>
-      <Button type="button" onClick={onCreate}>Registrar proveedor en Personas</Button>
+      <Button type="button" onClick={() => { setOpen(false); onCreate(); }}><UserPlus size={15} aria-hidden="true" />Registrar proveedor en Personas</Button>
     </div>
     <details className="provider-document">
       <summary>Buscar en todas las personas por documento</summary>

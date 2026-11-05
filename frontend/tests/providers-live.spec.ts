@@ -19,13 +19,16 @@ test("carga proveedores reales sin escribir datos", async ({ page }) => {
   const active = people.filter(person => person.activo && person.roles.includes("PROVEEDOR"));
   const editor = page.getByRole("dialog", { name: "Nuevo producto", exact: true });
   await expect(editor.getByText(/La consulta por rol devuelve hasta 100 personas/)).toBeVisible();
-  await expect(editor.getByRole("radio")).toHaveCount(active.length + 1);
+  const input = editor.getByRole("combobox", { name: "Buscar proveedor", exact: true });
+  await input.click();
+  await expect(editor.getByRole("option")).toHaveCount(active.length + 1);
   for (const person of active) {
-    await expect(editor.locator(".provider-option").filter({ hasText: `${person.nombres} ${person.apellidos || ""}`.trim() }).filter({ hasText: `${person.tipoDocumento} ${person.numeroDocumento}` })).toBeVisible();
+    await expect(editor.locator(".provider-option").filter({ hasText: `${person.nombres} ${person.apellidos || ""}`.trim() }).filter({ hasText: `${person.tipoDocumento} ${person.numeroDocumento}` })).toHaveCount(1);
   }
   if (active.length) {
-    await editor.getByRole("radio").nth(1).check();
-    await expect(editor.getByRole("radio").nth(1)).toBeChecked();
+    await editor.getByRole("option").nth(1).click();
+    await expect(input).toHaveValue(`${active[0].nombres} ${active[0].apellidos || ""}`.trim());
+    await expect(input).toHaveAttribute("aria-expanded", "false");
   }
   expect(attemptedWrites).toEqual([]);
 });

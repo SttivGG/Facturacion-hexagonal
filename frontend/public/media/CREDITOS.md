@@ -8,4 +8,4 @@ Son fotografías de ambientación, no productos del catálogo ni registros del n
 - bosque.webp: https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=960&q=46&fm=webp
 - horizonte.webp: https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=960&q=46&fm=webp
 
-Ningún recurso proviene de Sorvo. Urbanist se distribuye aparte bajo SIL OFL 1.1 en /fonts/OFL-Urbanist.txt.
+Urbanist se distribuye aparte bajo SIL OFL 1.1 en /fonts/OFL-Urbanist.txt. La denominación Nexo Design System no cambia la autoría ni las licencias de estos recursos.

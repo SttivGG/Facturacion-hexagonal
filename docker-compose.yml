@@ -1,5 +1,29 @@
 name: facturacion-hexagonal
 
+# Infraestructura académica opcional; no es una dependencia de Nexo.
+x-druid: &druid
+  image: apache/druid:38.0.0
+  profiles: [analytics]
+  env_file:
+    - ./infrastructure/druid/common.env
+  restart: unless-stopped
+  stop_grace_period: 60s
+  healthcheck:
+    test: ["CMD-SHELL", 'wget -q -T 4 -O - "http://127.0.0.1:$${DRUID_HEALTH_PORT}/status/health" | grep -qx true']
+    interval: 15s
+    timeout: 6s
+    start_period: 90s
+    retries: 20
+  networks:
+    - facturacion-interna
+
+x-druid-environment: &druid-environment
+  # El valor por defecto es solo un ejemplo local; configurar .env antes de iniciar.
+  DRUID_METADATA_PASSWORD: ${DRUID_METADATA_PASSWORD:-cambiar_druid_solo_desarrollo}
+  # /druid.sh imprime propiedades al arrancar: usar un proveedor evita imprimir la clave.
+  druid_metadata_storage_connector_password: '{"type":"environment","variable":"DRUID_METADATA_PASSWORD"}'
+  DRUID_XMS: 64m
+
 services:
   facturacion-frontend:
     build:
@@ -39,6 +63,12 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-facturacion_ventas}
       MYSQL_USER: ${MYSQL_USER:?Define MYSQL_USER en .env}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Define MYSQL_PASSWORD en .env}
+      DRUID_ENABLED: ${DRUID_ENABLED:-false}
+      DRUID_BASE_URL: ${DRUID_BASE_URL:-http://druid-router:8888}
+      DRUID_SYNC_INTERVAL: ${DRUID_SYNC_INTERVAL:-PT1M}
+      DRUID_HTTP_TIMEOUT: ${DRUID_HTTP_TIMEOUT:-PT10S}
+      DRUID_TASK_TIMEOUT: ${DRUID_TASK_TIMEOUT:-PT8M}
+      DRUID_MAX_REQUEST_BYTES: ${DRUID_MAX_REQUEST_BYTES:-1000000}
     depends_on:
       facturacion-mongodb:
         condition: service_healthy
@@ -143,6 +173,146 @@ services:
     networks:
       - facturacion-interna
 
+  druid-metadata:
+    image: postgres:17.6-alpine
+    profiles: [analytics]
+    environment:
+      POSTGRES_DB: druid
+      POSTGRES_USER: druid
+      POSTGRES_PASSWORD: ${DRUID_METADATA_PASSWORD:-cambiar_druid_solo_desarrollo}
+    command: ["postgres", "-c", "shared_buffers=32MB", "-c", "max_connections=30"]
+    volumes:
+      - druid-metadata-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U druid -d druid"]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 10
+    mem_limit: 192m
+    restart: unless-stopped
+    networks:
+      - facturacion-interna
+
+  druid-zookeeper:
+    image: zookeeper:3.9.4
+    profiles: [analytics]
+    environment:
+      ZOO_STANDALONE_ENABLED: "true"
+      ZOO_ADMINSERVER_ENABLED: "false"
+      ZOO_4LW_COMMANDS_WHITELIST: ruok
+      ZOO_MAX_CLIENT_CNXNS: "60"
+      JVMFLAGS: "-Xms32m -Xmx64m -XX:MaxDirectMemorySize=32m -XX:ActiveProcessorCount=2"
+    volumes:
+      - druid-zookeeper-data:/data
+      - druid-zookeeper-log:/datalog
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc -w 3 127.0.0.1 2181 | grep -qx imok"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 15
+    mem_limit: 192m
+    restart: unless-stopped
+    networks:
+      - facturacion-interna
+
+  druid-coordinator:
+    <<: *druid
+    # nano-quickstart ejecuta Coordinator y Overlord en el mismo proceso.
+    command: [coordinator]
+    environment:
+      <<: *druid-environment
+      druid_host: druid-coordinator
+      DRUID_HEALTH_PORT: "8081"
+      DRUID_XMX: 256m
+      DRUID_MAXDIRECTMEMORYSIZE: 64m
+    volumes:
+      - druid-shared:/opt/shared
+      - druid-coordinator-var:/opt/druid/var
+    depends_on:
+      druid-metadata:
+        condition: service_healthy
+      druid-zookeeper:
+        condition: service_healthy
+    mem_limit: 512m
+
+  druid-broker:
+    <<: *druid
+    command: [broker]
+    environment:
+      <<: *druid-environment
+      druid_host: druid-broker
+      DRUID_HEALTH_PORT: "8082"
+      DRUID_XMX: 256m
+      DRUID_MAXDIRECTMEMORYSIZE: 128m
+    volumes:
+      - druid-broker-var:/opt/druid/var
+    depends_on:
+      druid-coordinator:
+        condition: service_healthy
+    mem_limit: 576m
+
+  druid-historical:
+    <<: *druid
+    command: [historical]
+    environment:
+      <<: *druid-environment
+      druid_host: druid-historical
+      DRUID_HEALTH_PORT: "8083"
+      DRUID_XMX: 256m
+      DRUID_MAXDIRECTMEMORYSIZE: 128m
+      druid_segmentCache_locations: '[{"path":"var/druid/segment-cache","maxSize":"1g"}]'
+      druid_cache_sizeInBytes: 16MiB
+    volumes:
+      - druid-shared:/opt/shared
+      - druid-historical-var:/opt/druid/var
+    depends_on:
+      druid-coordinator:
+        condition: service_healthy
+    mem_limit: 576m
+
+  druid-middlemanager:
+    <<: *druid
+    command: [middleManager]
+    environment:
+      <<: *druid-environment
+      druid_host: druid-middlemanager
+      DRUID_HEALTH_PORT: "8091"
+      DRUID_XMX: 64m
+      DRUID_MAXDIRECTMEMORYSIZE: 64m
+    volumes:
+      - druid-shared:/opt/shared
+      - druid-middlemanager-var:/opt/druid/var
+    depends_on:
+      druid-coordinator:
+        condition: service_healthy
+    # MiddleManager + the controller/worker pair of ONE sequential MSQ ingestion.
+    mem_limit: 1152m
+
+  druid-router:
+    <<: *druid
+    command: [router]
+    environment:
+      <<: *druid-environment
+      druid_host: druid-router
+      DRUID_HEALTH_PORT: "8888"
+      DRUID_XMX: 128m
+      DRUID_MAXDIRECTMEMORYSIZE: 64m
+      druid_router_http_numMaxThreads: "10"
+    ports:
+      - "127.0.0.1:${DRUID_PORT:-8888}:8888"
+    volumes:
+      - druid-router-var:/opt/druid/var
+    depends_on:
+      druid-broker:
+        condition: service_healthy
+      druid-historical:
+        condition: service_healthy
+      druid-middlemanager:
+        condition: service_healthy
+    mem_limit: 320m
+
 networks:
   facturacion-interna:
     driver: bridge
@@ -151,3 +321,12 @@ volumes:
   mongodb-data:
   cassandra-data:
   mysql-data:
+  druid-metadata-data:
+  druid-zookeeper-data:
+  druid-zookeeper-log:
+  druid-shared:
+  druid-coordinator-var:
+  druid-broker-var:
+  druid-historical-var:
+  druid-middlemanager-var:
+  druid-router-var:

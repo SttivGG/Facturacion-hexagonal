@@ -1,5 +1,7 @@
 # Fase 7D — Selector de proveedores en productos
 
+> Actualización: la [corrección del combobox de Nexo](FASE7D-CORRECCION-COMBOBOX.md) sustituye el grupo de radios descrito en esta implementación inicial. Incluye validación y capturas del selector actual.
+
 ## Alcance
 
 Se sustituye el texto libre «ID del proveedor» por una selección de personas registradas. El contrato de productos conserva `proveedorId: String`, opcional, y no cambia el documento de MongoDB. No se modifican facturación, Druid, Docker ni esquemas de datos.
@@ -12,7 +14,7 @@ Se sustituye el texto libre «ID del proveedor» por una selección de personas 
 | `frontend/src/components/ProductEditor.tsx` | Integra el selector y la creación de proveedores, conservando formulario e imagen. |
 | `frontend/src/components/PersonEditor.tsx` | Añade `initialRole`, opcional y con valor predeterminado `CLIENTE`; Productos utiliza `PROVEEDOR`. Conserva las mejoras previas de ubicaciones. |
 | `frontend/src/api.ts` | Añade `api.person(id, signal)` sobre el GET existente por ID. |
-| `frontend/src/styles/providers.css` | Estilos limitados al selector, con tokens Sorvo, Urbanist, naranja, foco y movimiento reducido. |
+| `frontend/src/styles/providers.css` | Estilos limitados al selector, con tokens de Nexo Design System, Urbanist, naranja, foco y movimiento reducido. |
 | `backend/.../application/usecase/ProductoService.java` | Valida asociaciones nuevas o modificadas mediante `PersonaRepositoryPort`. |
 | `backend/.../infrastructure/config/ProductoConfiguration.java` | Inyecta el puerto de personas en el servicio. |
 | `backend/src/test/.../ProductoProveedorTests.java` | Casos de validación y compatibilidad histórica. |

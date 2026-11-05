@@ -3,7 +3,7 @@
 Inspección realizada el 5 de noviembre de 2026 antes de implementar las pantallas.
 
 - React 19, TypeScript, Vite y Tailwind; navegación propia mediante hash, sin biblioteca de rutas. Nginx ya sirve `index.html` para rutas SPA. Se conservarán enlaces antiguos y se añadirán las rutas solicitadas.
-- Sorvo ya está aplicado: Urbanist local, tokens en `styles/tokens.css`, naranja #F58136, sidebar compacto, header flotante, paneles glass y preferencias de movimiento reducido. No requiere otro rediseño global. El demo remoto no fue accesible desde el lector web; existe evidencia local en `docs/capturas/fase6a1`.
+- Nexo Design System ya está aplicado: Urbanist local, tokens en `styles/tokens.css`, naranja #F58136, sidebar compacto, header flotante, paneles glass y preferencias de movimiento reducido. La evidencia propia se conserva en `docs/capturas/fase6a1`.
 - `api.ts` centraliza fetch, timeout de 20 segundos, errores ProblemDetail (`detail`, `errores`) y preservación de importes JSON como cadenas. No hay reintentos automáticos. Se reutiliza este servicio.
 - `ui.tsx` proporciona Button, Overlay, Confirm, Loading, Empty, ErrorNotice, ProductImage y Toast; `forms.tsx` proporciona Field. PersonEditor permite crear personas con rol CLIENTE y se reutilizará desde ventas.
 - `FacturaRequest`: clienteId obligatorio; vendedorId opcional; modalidad CONTADO/CREDITO; fechaVencimiento; detalles con productoId y cantidad entera positiva; pagosIniciales con metodoPago, monto, referencia y observaciones. Máximos: 1000 detalles y 100 pagos. No se envían precios ni totales.

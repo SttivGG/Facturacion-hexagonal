@@ -5,6 +5,7 @@ import com.sttiv.facturacion.application.port.PersonaUseCase;
 import com.sttiv.facturacion.domain.exception.*;
 import com.sttiv.facturacion.domain.model.*;
 import com.sttiv.facturacion.domain.port.PersonaRepositoryPort;
+import com.sttiv.facturacion.domain.port.UbicacionCatalogoPort;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -14,17 +15,20 @@ public class PersonaService implements PersonaUseCase {
     public static final int LIMITE_POR_ROL = 100;
     private final PersonaRepositoryPort personas;
     private final Clock clock;
+    private final UbicacionCatalogoPort ubicaciones;
 
-    public PersonaService(PersonaRepositoryPort personas, Clock clock) {
+    public PersonaService(PersonaRepositoryPort personas, Clock clock, UbicacionCatalogoPort ubicaciones) {
         this.personas = personas;
         this.clock = clock;
+        this.ubicaciones = ubicaciones;
     }
 
     @Override public Persona crear(PersonaCommand c, Set<RolPersona> roles) {
+        var ubicacion = ubicaciones.normalizar(new UbicacionGeografica(c.pais(), c.departamento(), c.ciudad()));
         Instant ahora = ahora();
         return personas.crear(new Persona(UUID.randomUUID(), c.tipoDocumento(), c.numeroDocumento(),
                 c.nombres(), c.apellidos(), c.correo(), c.telefono(), c.telefonoAlternativo(),
-                c.direccion(), c.ciudad(), c.departamento(), c.pais(), c.fechaNacimiento(),
+                c.direccion(), ubicacion.ciudad(), ubicacion.departamento(), ubicacion.pais(), c.fechaNacimiento(),
                 c.observaciones(), roles, true, ahora, ahora));
     }
 
@@ -43,9 +47,13 @@ public class PersonaService implements PersonaUseCase {
                 || !anterior.numeroDocumento().equals(Persona.documento(c.numeroDocumento()))) {
             throw new DatosInvalidosException("El tipo y número de documento no se pueden modificar");
         }
+        // La comparación exacta conserva incluso valores legados no reconocidos al editar otros datos.
+        var ubicacion = new UbicacionGeografica(c.pais(), c.departamento(), c.ciudad());
+        var original = new UbicacionGeografica(anterior.pais(), anterior.departamento(), anterior.ciudad());
+        if (!ubicacion.equals(original)) ubicacion = ubicaciones.normalizar(ubicacion);
         return personas.guardar(new Persona(anterior.id(), anterior.tipoDocumento(), anterior.numeroDocumento(),
                 c.nombres(), c.apellidos(), c.correo(), c.telefono(), c.telefonoAlternativo(),
-                c.direccion(), c.ciudad(), c.departamento(), c.pais(), c.fechaNacimiento(),
+                c.direccion(), ubicacion.ciudad(), ubicacion.departamento(), ubicacion.pais(), c.fechaNacimiento(),
                 c.observaciones(), anterior.roles(), anterior.activo(), anterior.fechaCreacion(), ahora()));
     }
 

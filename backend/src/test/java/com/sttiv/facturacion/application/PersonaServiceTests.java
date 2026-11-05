@@ -3,6 +3,7 @@ package com.sttiv.facturacion.application;
 import com.sttiv.facturacion.PersonasEnMemoria;
 import com.sttiv.facturacion.application.command.PersonaCommand;
 import com.sttiv.facturacion.application.usecase.PersonaService;
+import com.sttiv.facturacion.infrastructure.adapter.output.divipola.DivipolaCatalogoAdapter;
 import com.sttiv.facturacion.domain.exception.*;
 import com.sttiv.facturacion.domain.model.*;
 import java.time.*;
@@ -21,7 +22,7 @@ class PersonaServiceTests {
     Persona crear() { return servicio.crear(datos(" CC ", " 123 ", " Ana ", "ana@example.test"), Set.of(RolPersona.CLIENTE)); }
     @BeforeEach void preparar() {
         repositorio = new PersonasEnMemoria();
-        servicio = new PersonaService(repositorio, Clock.fixed(ahora, ZoneOffset.UTC));
+        servicio = new PersonaService(repositorio, Clock.fixed(ahora, ZoneOffset.UTC), new DivipolaCatalogoAdapter());
     }
     @Test void crearConIdentidadFechasYNormalizacion() {
         var p = crear();
@@ -39,7 +40,7 @@ class PersonaServiceTests {
         assertThatThrownBy(this::crear).isInstanceOf(DocumentoDuplicadoException.class);
     }
     @Test void fechasConPrecisionDeMilisegundos() {
-        servicio = new PersonaService(repositorio, Clock.fixed(ahora.plusNanos(123456789), ZoneOffset.UTC));
+        servicio = new PersonaService(repositorio, Clock.fixed(ahora.plusNanos(123456789), ZoneOffset.UTC), new DivipolaCatalogoAdapter());
         var p = crear();
         assertThat(p.fechaCreacion()).isEqualTo(ahora.plusMillis(123));
         assertThat(p.fechaActualizacion()).isEqualTo(p.fechaCreacion());
@@ -56,7 +57,7 @@ class PersonaServiceTests {
     }
     @Test void actualizarConservaIdentidadRolesEstadoYCreacion() {
         var p = crear(); servicio.desactivar(p.id());
-        var posterior = new PersonaService(repositorio, Clock.fixed(ahora.plusSeconds(10), ZoneOffset.UTC));
+        var posterior = new PersonaService(repositorio, Clock.fixed(ahora.plusSeconds(10), ZoneOffset.UTC), new DivipolaCatalogoAdapter());
         var editada = posterior.actualizar(p.id(), datos("CC", "123", "Ana María", "nueva@example.test"));
         assertThat(editada.id()).isEqualTo(p.id());
         assertThat(editada.roles()).isEqualTo(p.roles());

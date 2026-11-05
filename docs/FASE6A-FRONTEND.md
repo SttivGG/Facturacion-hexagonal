@@ -1,8 +1,8 @@
 # Frontend Nexo · Fase 6A
 
-> Este documento conserva la implementación y la evidencia de la Fase 6A inicial. El diseño vigente, su tema claro y las fotografías se documentan en [Fase 6A.1 · Rediseño Sorvo](FASE6A-REDISENO-SORVO.md).
+> Este documento conserva la implementación y la evidencia de la Fase 6A inicial. El sistema visual vigente se documenta en [Fase 6A.1 · Identidad visual de Nexo](FASE6A-IDENTIDAD-VISUAL-NEXO.md).
 
-Implementación original en `frontend/`, inspirada en los paneles de vidrio, fondos y controles de apariencia descritos en la [ficha oficial de Sorvo](https://codeandchill.store/templates/sorvo). El demo público no respondió a la inspección de navegador durante esta sesión. No se incorporaron código, imágenes ni recursos propietarios del template.
+Implementación original en `frontend/`, con paneles de vidrio, fondos y controles de apariencia. Nexo Design System define la identidad visual de la aplicación. La procedencia y las licencias de la tipografía y las fotografías se conservan en el informe visual.
 
 ## Alcance
 
