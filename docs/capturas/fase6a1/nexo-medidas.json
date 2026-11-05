@@ -1,0 +1,76 @@
+{
+  "theme": "light",
+  "font": "Urbanist, system-ui, sans-serif",
+  "nodes": [
+    {
+      "selector": ".sidebar",
+      "x": 16,
+      "y": 16,
+      "width": 84,
+      "height": 1263,
+      "background": "rgba(255, 255, 255, 0.68)",
+      "radius": "28px",
+      "blur": "blur(26px) saturate(1.3)"
+    },
+    {
+      "selector": ".topbar",
+      "x": 108,
+      "y": 16,
+      "width": 1121,
+      "height": 64,
+      "background": "rgba(242, 246, 248, 0.68)",
+      "radius": "24px",
+      "blur": "blur(26px) saturate(1.3)"
+    },
+    {
+      "selector": ".dashboard-title",
+      "x": 108,
+      "y": 106,
+      "width": 1121,
+      "height": 62,
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px",
+      "blur": "none"
+    },
+    {
+      "selector": ".sales-hero",
+      "x": 108,
+      "y": 188,
+      "width": 1121,
+      "height": 470,
+      "background": "rgba(12, 10, 8, 0.8)",
+      "radius": "22px",
+      "blur": "none"
+    },
+    {
+      "selector": ".invoice-activity",
+      "x": 108,
+      "y": 676,
+      "width": 1121,
+      "height": 267,
+      "background": "rgba(242, 246, 248, 0.68)",
+      "radius": "22px",
+      "blur": "blur(26px) saturate(1.3)"
+    },
+    {
+      "selector": ".kpi-grid",
+      "x": 108,
+      "y": 961,
+      "width": 1121,
+      "height": 274,
+      "background": "rgba(0, 0, 0, 0)",
+      "radius": "0px",
+      "blur": "none"
+    },
+    {
+      "selector": ".kpi",
+      "x": 108,
+      "y": 961,
+      "width": 551.5,
+      "height": 128,
+      "background": "color(srgb 0.964706 0.886275 0.823529 / 0.83)",
+      "radius": "22px",
+      "blur": "blur(26px) saturate(1.3)"
+    }
+  ]
+}

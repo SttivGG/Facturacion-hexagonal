@@ -1,0 +1,72 @@
+{
+  "date": "2026-11-05T13:19:37.150Z",
+  "marker": "FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+  "checks": [
+    "Cliente Cassandra y producto MongoDB ficticios creados mediante el proxy HTTP",
+    "Factura a crédito creada desde el punto de venta",
+    "MySQL devuelve total 20000.50 y estado PENDIENTE sin inicial",
+    "Abono 5000.10 registrado desde el formulario de pagos",
+    "Saldo 15000.40, estado PARCIAL e historial actualizado después del primer abono",
+    "Abono 15000.40 registrado desde el formulario de pagos",
+    "Pago completo: saldo cero, estado PAGADA y dos pagos conservados",
+    "Backend disponible después de reiniciarlo",
+    "Persistencia tras reinicio: factura PAGADA, detalles históricos, pagos y saldos idénticos",
+    "Identidad ficticia verificada antes de limpiar",
+    "Limpieza MySQL limitada a las facturas del cliente ficticio de esta ejecución",
+    "Cliente ficticio eliminado de Cassandra",
+    "Producto ficticio eliminado de MongoDB por su SKU único",
+    "Conteos y hashes de productos, facturas y todos los roles coinciden con la línea base"
+  ],
+  "baseline": {
+    "/productos": {
+      "count": 2,
+      "hash": "7ad99cc1456d00fb8d1b40332512d5cbf46525b6861db031c709342782adbf5a"
+    },
+    "/facturas": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "/personas/rol/CLIENTE": {
+      "count": 1,
+      "hash": "1fa91aa862232be8961ac96ffb9862ca2e34f52ee2a3098abea61cec27195bbd"
+    },
+    "/personas/rol/PROVEEDOR": {
+      "count": 1,
+      "hash": "4b60b96cfc46d5c97c1a90a12f3bcfa3ea72ef1099a727f770426c88cb26d418"
+    },
+    "/personas/rol/TRABAJADOR": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "/personas/rol/ADMINISTRADOR": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "final": {
+    "/productos": {
+      "count": 2,
+      "hash": "7ad99cc1456d00fb8d1b40332512d5cbf46525b6861db031c709342782adbf5a"
+    },
+    "/facturas": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "/personas/rol/CLIENTE": {
+      "count": 1,
+      "hash": "1fa91aa862232be8961ac96ffb9862ca2e34f52ee2a3098abea61cec27195bbd"
+    },
+    "/personas/rol/PROVEEDOR": {
+      "count": 1,
+      "hash": "4b60b96cfc46d5c97c1a90a12f3bcfa3ea72ef1099a727f770426c88cb26d418"
+    },
+    "/personas/rol/TRABAJADOR": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "/personas/rol/ADMINISTRADOR": {
+      "count": 0,
+      "hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  }
+}

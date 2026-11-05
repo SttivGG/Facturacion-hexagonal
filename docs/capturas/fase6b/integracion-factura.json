@@ -1,0 +1,141 @@
+{
+  "marker": "FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+  "partial": {
+    "id": 39,
+    "numeroFactura": "FAC-39",
+    "clienteId": "6b60f6cb-4062-4ff2-829b-2f3c1a58bf3c",
+    "vendedorId": null,
+    "clienteNombre": "Cliente ficticio Fase 6B",
+    "clienteDocumento": "FASE6B_TEST FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+    "fechaEmision": "2026-11-05T13:19:02.747Z",
+    "fechaVencimiento": "2099-12-15",
+    "modalidad": "CREDITO",
+    "subtotal": 20000.5,
+    "impuestos": 0,
+    "total": 20000.5,
+    "totalPagado": 5000.1,
+    "saldoPendiente": 15000.4,
+    "estado": "PARCIAL",
+    "detalles": [
+      {
+        "id": 45,
+        "productoId": "af0995c6-3e7c-47d1-a06e-e0754c3fba46",
+        "sku": "FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+        "nombreProducto": "Producto ficticio Fase 6B",
+        "cantidad": 2,
+        "precioUnitario": 10000.25,
+        "subtotal": 20000.5,
+        "total": 20000.5
+      }
+    ],
+    "pagos": [
+      {
+        "id": 20,
+        "facturaId": 39,
+        "fechaPago": "2026-11-05T13:19:04.554Z",
+        "monto": 5000.1,
+        "metodoPago": "NEQUI",
+        "referencia": "FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+        "observaciones": ""
+      }
+    ]
+  },
+  "paid": {
+    "id": 39,
+    "numeroFactura": "FAC-39",
+    "clienteId": "6b60f6cb-4062-4ff2-829b-2f3c1a58bf3c",
+    "vendedorId": null,
+    "clienteNombre": "Cliente ficticio Fase 6B",
+    "clienteDocumento": "FASE6B_TEST FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+    "fechaEmision": "2026-11-05T13:19:02.747Z",
+    "fechaVencimiento": "2099-12-15",
+    "modalidad": "CREDITO",
+    "subtotal": 20000.5,
+    "impuestos": 0,
+    "total": 20000.5,
+    "totalPagado": 20000.5,
+    "saldoPendiente": 0,
+    "estado": "PAGADA",
+    "detalles": [
+      {
+        "id": 45,
+        "productoId": "af0995c6-3e7c-47d1-a06e-e0754c3fba46",
+        "sku": "FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+        "nombreProducto": "Producto ficticio Fase 6B",
+        "cantidad": 2,
+        "precioUnitario": 10000.25,
+        "subtotal": 20000.5,
+        "total": 20000.5
+      }
+    ],
+    "pagos": [
+      {
+        "id": 20,
+        "facturaId": 39,
+        "fechaPago": "2026-11-05T13:19:04.554Z",
+        "monto": 5000.1,
+        "metodoPago": "NEQUI",
+        "referencia": "FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+        "observaciones": ""
+      },
+      {
+        "id": 21,
+        "facturaId": 39,
+        "fechaPago": "2026-11-05T13:19:05.989Z",
+        "monto": 15000.4,
+        "metodoPago": "NEQUI",
+        "referencia": "FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+        "observaciones": ""
+      }
+    ]
+  },
+  "persisted": {
+    "id": 39,
+    "numeroFactura": "FAC-39",
+    "clienteId": "6b60f6cb-4062-4ff2-829b-2f3c1a58bf3c",
+    "vendedorId": null,
+    "clienteNombre": "Cliente ficticio Fase 6B",
+    "clienteDocumento": "FASE6B_TEST FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+    "fechaEmision": "2026-11-05T13:19:02.747Z",
+    "fechaVencimiento": "2099-12-15",
+    "modalidad": "CREDITO",
+    "subtotal": 20000.5,
+    "impuestos": 0,
+    "total": 20000.5,
+    "totalPagado": 20000.5,
+    "saldoPendiente": 0,
+    "estado": "PAGADA",
+    "detalles": [
+      {
+        "id": 45,
+        "productoId": "af0995c6-3e7c-47d1-a06e-e0754c3fba46",
+        "sku": "FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+        "nombreProducto": "Producto ficticio Fase 6B",
+        "cantidad": 2,
+        "precioUnitario": 10000.25,
+        "subtotal": 20000.5,
+        "total": 20000.5
+      }
+    ],
+    "pagos": [
+      {
+        "id": 20,
+        "facturaId": 39,
+        "fechaPago": "2026-11-05T13:19:04.554Z",
+        "monto": 5000.1,
+        "metodoPago": "NEQUI",
+        "referencia": "FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+        "observaciones": ""
+      },
+      {
+        "id": 21,
+        "facturaId": 39,
+        "fechaPago": "2026-11-05T13:19:05.989Z",
+        "monto": 15000.4,
+        "metodoPago": "NEQUI",
+        "referencia": "FASE6B-09350fb0-a969-4c46-9e85-59f3fa37cf63",
+        "observaciones": ""
+      }
+    ]
+  }
+}

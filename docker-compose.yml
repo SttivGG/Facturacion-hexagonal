@@ -1,6 +1,19 @@
 name: facturacion-hexagonal
 
 services:
+  facturacion-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-5173}:8080"
+    depends_on:
+      facturacion-backend:
+        condition: service_healthy
+    mem_limit: 128m
+    networks:
+      - facturacion-interna
+
   facturacion-backend:
     build:
       context: ./backend
@@ -11,7 +24,7 @@ services:
       SERVER_ADDRESS: 0.0.0.0
       SERVER_PORT: "8080"
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=70.0"
-      # MongoDB: catálogo y GridFS. Cassandra/MySQL: reservadas para futuras fases.
+      # MongoDB: catálogo y GridFS. Cassandra: personas. MySQL: facturas y pagos.
       MONGODB_HOST: ${MONGODB_HOST:-facturacion-mongodb}
       MONGODB_PORT: "27017"
       MONGODB_DATABASE: ${MONGODB_DATABASE:-facturacion_productos}
@@ -31,6 +44,8 @@ services:
         condition: service_healthy
       facturacion-cassandra:
         condition: service_healthy
+      facturacion-cassandra-init:
+        condition: service_completed_successfully
       facturacion-mysql:
         condition: service_healthy
     mem_limit: 512m
@@ -82,6 +97,27 @@ services:
       retries: 15
     mem_limit: 2g
     stop_grace_period: 60s
+    networks:
+      - facturacion-interna
+
+  facturacion-cassandra-init:
+    image: cassandra:4.1.12
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        intento=0
+        until cqlsh facturacion-cassandra 9042 -f /schema/001-personas.cql; do
+          intento=$$((intento + 1))
+          if [ "$$intento" -ge 20 ]; then exit 1; fi
+          sleep 3
+        done
+    volumes:
+      - ./infrastructure/cassandra:/schema:ro
+    depends_on:
+      facturacion-cassandra:
+        condition: service_healthy
+    restart: "no"
+    mem_limit: 256m
     networks:
       - facturacion-interna
 

@@ -1,0 +1,44 @@
+GET /api/health -> 200
+Health original conservado
+POST /api/productos -> 201
+Location apunta al producto creado
+Creación en COP y estado activo
+POST /api/productos -> 409
+POST /api/productos -> 400
+POST /api/productos -> 400
+POST /api/productos -> 400
+POST /api/productos -> 400
+GET /api/productos -> 200
+Listado incluye el producto de prueba
+GET /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e -> 200
+Costo recuperado sin pérdida decimal
+GET /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e/imagen -> 404
+PUT /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e -> 200
+Actualización conserva fecha de creación
+POST /api/productos -> 201
+PUT /api/productos/8fb14aa5-7f32-459b-a488-0656077f37c7 -> 409
+GET /api/productos/4182f61c-f684-41b8-8a86-692b01e81dd0 -> 404
+PUT /api/productos/4182f61c-f684-41b8-8a86-692b01e81dd0 -> 404
+DELETE /api/productos/4182f61c-f684-41b8-8a86-692b01e81dd0 -> 404
+GET /api/productos/4182f61c-f684-41b8-8a86-692b01e81dd0/imagen -> 404
+POST /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e/imagen -> 200
+POST /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e/imagen -> 200
+Reemplazo genera una nueva referencia GridFS
+GET /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e/imagen -> 200
+PNG recuperado byte por byte
+POST /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e/imagen -> 400
+POST /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e/imagen -> 400
+POST /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e/imagen -> 400
+POST /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e/imagen -> 400
+POST /api/productos/4182f61c-f684-41b8-8a86-692b01e81dd0/imagen -> 404
+DELETE /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e -> 204
+GET /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e -> 200
+DELETE conserva el producto inactivo y su imagen
+POST /api/productos -> 409
+MongoDB: documento inactivo, Decimal128 exacto, índice único, fs.files/fs.chunks y limpieza de imagen anterior
+Backend disponible después del reinicio
+GET /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e -> 200
+Documento persiste después del reinicio
+GET /api/productos/37af1b4e-12b1-4f84-af9b-8708931a782e/imagen -> 200
+GridFS persiste después del reinicio
+Limpieza limitada a UUID y SKU de esta ejecución: {"productosPruebaEliminados":2,"imagenesPruebaEliminadas":1}

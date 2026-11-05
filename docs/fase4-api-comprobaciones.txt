@@ -1,0 +1,72 @@
+GET /api/health -> 200
+Health original disponible
+POST /api/personas -> 201
+Creación con múltiples roles sin duplicados
+UUID representable como String proveedorId sin cambiar productos
+POST /api/personas -> 409
+POST /api/personas -> 400
+POST /api/personas -> 400
+POST /api/personas -> 400
+POST /api/personas -> 400
+POST /api/personas -> 400
+GET /api/personas/4f65019c-4a01-4753-ad6a-6ff42c65d074 -> 200
+Datos opcionales y LocalDate recuperados
+GET /api/personas/documento/FASE4_TEST/FASE4-978e30b0f9d7497d810f391a96bca64b-A -> 200
+Búsqueda por documento devuelve el mismo UUID
+GET /api/personas/rol/CLIENTE -> 200
+Consulta por CLIENTE incluye la persona
+PUT /api/personas/4f65019c-4a01-4753-ad6a-6ff42c65d074 -> 200
+Actualizar conserva identidad y fecha de creación
+PUT /api/personas/4f65019c-4a01-4753-ad6a-6ff42c65d074 -> 400
+PUT /api/personas/4f65019c-4a01-4753-ad6a-6ff42c65d074 -> 400
+PUT /api/personas/4f65019c-4a01-4753-ad6a-6ff42c65d074/roles -> 200
+Asignación de los cuatro roles simultáneos
+PUT /api/personas/4f65019c-4a01-4753-ad6a-6ff42c65d074/roles -> 400
+PUT /api/personas/4f65019c-4a01-4753-ad6a-6ff42c65d074/roles -> 200
+CQL: retirada completa de rol CLIENTE
+CQL: retirada completa de rol PROVEEDOR
+CQL: retirada completa de rol TRABAJADOR
+CQL: retirada completa de rol ADMINISTRADOR
+PUT /api/personas/4f65019c-4a01-4753-ad6a-6ff42c65d074/roles -> 200
+GET /api/personas/rol/CLIENTE -> 200
+Rol CLIENTE retirado del listado
+GET /api/personas/rol/PROVEEDOR -> 200
+Rol PROVEEDOR asignado permanece en listado
+GET /api/personas/e9ddd26c-a001-4f79-9069-29b1af1c4577 -> 404
+GET /api/personas/documento/FASE4_TEST/ausente-FASE4-978e30b0f9d7497d810f391a96bca64b -> 404
+PUT /api/personas/e9ddd26c-a001-4f79-9069-29b1af1c4577 -> 404
+PUT /api/personas/e9ddd26c-a001-4f79-9069-29b1af1c4577/roles -> 404
+DELETE /api/personas/e9ddd26c-a001-4f79-9069-29b1af1c4577 -> 404
+GET /api/personas/no-uuid -> 400
+GET /api/personas/rol/OTRO -> 400
+DELETE /api/personas/4f65019c-4a01-4753-ad6a-6ff42c65d074 -> 204
+DELETE /api/personas/4f65019c-4a01-4753-ad6a-6ff42c65d074 -> 204
+GET /api/personas/4f65019c-4a01-4753-ad6a-6ff42c65d074 -> 200
+Desactivación lógica idempotente conserva roles
+POST /api/personas -> 409
+CQL: persona completa e inactiva almacenada
+CQL: índice de documento conserva UUID
+CQL: rol PROVEEDOR presente y CLIENTE retirado
+Concurrencia real: un POST 201 y un POST 409 para el mismo documento
+Backend disponible después del reinicio
+GET /api/personas/4f65019c-4a01-4753-ad6a-6ff42c65d074 -> 200
+Persistencia: todos los campos idénticos después del reinicio
+GET /api/personas/documento/FASE4_TEST/FASE4-978e30b0f9d7497d810f391a96bca64b-A -> 200
+Persistencia del índice de documento después del reinicio
+GET /api/personas/rol/PROVEEDOR -> 200
+Persistencia del índice de rol después del reinicio
+CQL: persona completa e inactiva almacenada
+CQL: índice de documento conserva UUID
+CQL: rol PROVEEDOR presente y CLIENTE retirado
+Limpieza CQL de rol CLIENTE para 4f65019c-4a01-4753-ad6a-6ff42c65d074
+Limpieza CQL de rol PROVEEDOR para 4f65019c-4a01-4753-ad6a-6ff42c65d074
+Limpieza CQL de rol TRABAJADOR para 4f65019c-4a01-4753-ad6a-6ff42c65d074
+Limpieza CQL de rol ADMINISTRADOR para 4f65019c-4a01-4753-ad6a-6ff42c65d074
+Limpieza CQL de persona 4f65019c-4a01-4753-ad6a-6ff42c65d074
+Limpieza CQL de documento ficticio FASE4-978e30b0f9d7497d810f391a96bca64b-A
+Limpieza CQL de rol CLIENTE para 407041ce-1bc4-4a9e-a968-89fb74aee43a
+Limpieza CQL de rol PROVEEDOR para 407041ce-1bc4-4a9e-a968-89fb74aee43a
+Limpieza CQL de rol TRABAJADOR para 407041ce-1bc4-4a9e-a968-89fb74aee43a
+Limpieza CQL de rol ADMINISTRADOR para 407041ce-1bc4-4a9e-a968-89fb74aee43a
+Limpieza CQL de persona 407041ce-1bc4-4a9e-a968-89fb74aee43a
+Limpieza CQL de documento ficticio FASE4-978e30b0f9d7497d810f391a96bca64b-B

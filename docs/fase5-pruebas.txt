@@ -1,0 +1,35 @@
+Verificación de fase 5, 2026-11-04 (America/Bogota)
+Suite local, Java 22 con --release 21:
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.968 s -- in com.sttiv.facturacion.application.FacturaServiceTests
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.300 s -- in com.sttiv.facturacion.application.PersonaServiceTests
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.578 s -- in com.sttiv.facturacion.application.ProductoServiceTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 16.99 s -- in com.sttiv.facturacion.FacturacionHexagonalApplicationTests
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.167 s -- in com.sttiv.facturacion.infrastructure.CassandraPersonaAdapterTests
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.227 s -- in com.sttiv.facturacion.infrastructure.FacturaControllerTests
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.315 s -- in com.sttiv.facturacion.infrastructure.FacturaJpaTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.137 s -- in com.sttiv.facturacion.infrastructure.MongoProductoAdapterTests
+[WARNING] Tests run: 5, Failures: 0, Errors: 0, Skipped: 5, Time elapsed: 0 s -- in com.sttiv.facturacion.infrastructure.MySqlFacturaIntegrationTests
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.916 s -- in com.sttiv.facturacion.infrastructure.PersonaControllerTests
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.134 s -- in com.sttiv.facturacion.infrastructure.ProductoControllerTests
+[INFO] Tests run: 86, Failures: 0, Errors: 0, Skipped: 5
+[INFO] BUILD SUCCESS
+Construcción Docker, Java 21:
+#17 30.16 [INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.274 s -- in com.sttiv.facturacion.application.PersonaServiceTests
+#17 31.55 [INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.393 s -- in com.sttiv.facturacion.application.ProductoServiceTests
+#17 31.73 [INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.185 s -- in com.sttiv.facturacion.application.FacturaServiceTests
+#17 31.87 [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.145 s -- in com.sttiv.facturacion.infrastructure.MongoProductoAdapterTests
+#17 35.21 [INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.330 s -- in com.sttiv.facturacion.infrastructure.FacturaControllerTests
+#17 36.08 [INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.776 s -- in com.sttiv.facturacion.infrastructure.CassandraPersonaAdapterTests
+#17 41.94 [INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.911 s -- in com.sttiv.facturacion.infrastructure.FacturaJpaTests
+#17 41.96 [WARNING] Tests run: 5, Failures: 0, Errors: 0, Skipped: 5, Time elapsed: 0.003 s -- in com.sttiv.facturacion.infrastructure.MySqlFacturaIntegrationTests
+#17 42.54 [INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.557 s -- in com.sttiv.facturacion.infrastructure.ProductoControllerTests
+#17 43.03 [INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.531 s -- in com.sttiv.facturacion.infrastructure.PersonaControllerTests
+#17 44.06 [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.025 s -- in com.sttiv.facturacion.FacturacionHexagonalApplicationTests
+#17 44.18 [INFO] Tests run: 86, Failures: 0, Errors: 0, Skipped: 5
+#17 46.18 [INFO] BUILD SUCCESS
+Integración MySQL real, Java 21, red Compose:
+2026-11-05T00:30:28.967Z  INFO 92 --- [           main] o.f.core.internal.command.DbMigrate      : Schema `facturacion_ventas` is up to date. No migration necessary.
+	Database version: 8.4.13
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 68.80 s -- in com.sttiv.facturacion.infrastructure.MySqlFacturaIntegrationTests
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS

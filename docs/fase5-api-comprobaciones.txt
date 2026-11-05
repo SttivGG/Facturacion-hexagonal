@@ -1,0 +1,66 @@
+GET /api/health -> 200
+POST /api/personas -> 201
+POST /api/personas -> 201
+POST /api/productos -> 201
+POST /api/productos -> 201
+POST /api/productos -> 201
+DELETE /api/productos/bbc37375-6fa2-48e6-8127-b465e1cb58f3 -> 204
+POST /api/facturas -> 201
+Precios y totales calculados por backend; importes enviados ignorados
+Crédito con inicial y productos repetidos consolidados
+Número de factura derivado del ID MySQL
+GET /api/facturas/20 -> 200
+Consulta individual recupera la factura creada
+GET /api/facturas/cliente/9a41b6ed-ccee-448a-a38a-badcc3be26ba -> 200
+Historial por cliente incluye la factura
+GET /api/facturas -> 200
+Historial general incluye la factura
+POST /api/facturas -> 201
+Contado con efectivo y transferencia cubre el total exacto
+POST /api/facturas -> 400
+POST /api/facturas -> 400
+POST /api/facturas/21/pagos -> 409
+POST /api/facturas -> 400
+POST /api/facturas -> 400
+POST /api/facturas -> 400
+POST /api/facturas -> 400
+POST /api/facturas -> 404
+POST /api/facturas -> 409
+POST /api/facturas -> 404
+POST /api/facturas -> 409
+POST /api/facturas -> 409
+PUT /api/personas/c7957ad3-f210-4fbb-a70a-9c41761cdd47/roles -> 200
+POST /api/facturas -> 201
+Crédito sin inicial y vendedor validado en Cassandra
+POST /api/facturas -> 400
+POST /api/facturas -> 400
+PUT /api/productos/0b68f1b6-943b-4fee-b78c-8edc267ba33d -> 200
+GET /api/facturas/20 -> 200
+Snapshot histórico conserva SKU, nombre y precio tras cambiar MongoDB
+MongoDB confirma directamente el precio nuevo
+Cassandra confirma directamente cliente activo y rol CLIENTE
+POST /api/facturas/20/pagos -> 200
+Abono posterior actualiza saldo e historial
+POST /api/facturas/20/pagos -> 409
+POST /api/facturas/20/pagos -> 400
+POST /api/facturas/20/pagos -> 400
+POST /api/facturas/20/pagos -> 400
+GET /api/facturas/9223372036854775807 -> 404
+POST /api/facturas/9223372036854775807/pagos -> 404
+Abonos HTTP concurrentes: uno aceptado y otro rechazado por saldo
+GET /api/facturas/22 -> 200
+MySQL serializa abonos sin saldo negativo
+GET /api/facturas/20 -> 200
+Backend disponible tras reinicio
+GET /api/facturas/20 -> 200
+Persistencia: factura completa, detalles, pagos y saldo idénticos tras reiniciar
+POST /api/facturas/20/pagos -> 200
+Último abono completa el crédito y conserva tres pagos
+POST /api/facturas/20/pagos -> 409
+DELETE /api/personas/9a41b6ed-ccee-448a-a38a-badcc3be26ba -> 204
+POST /api/facturas -> 409
+Limpieza MySQL de las facturas del cliente ficticio 9a41b6ed-ccee-448a-a38a-badcc3be26ba
+Limpieza Cassandra de persona ficticia 9a41b6ed-ccee-448a-a38a-badcc3be26ba
+Limpieza MySQL de las facturas del cliente ficticio c7957ad3-f210-4fbb-a70a-9c41761cdd47
+Limpieza Cassandra de persona ficticia c7957ad3-f210-4fbb-a70a-9c41761cdd47
+Limpieza MongoDB de productos ficticios de esta ejecución

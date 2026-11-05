@@ -1,0 +1,40 @@
+{
+  "proveedor": [
+    {
+      "rol": "PROVEEDOR",
+      "persona_id": "4f65019c-4a01-4753-ad6a-6ff42c65d074"
+    }
+  ],
+  "cliente": [],
+  "documento": [
+    {
+      "tipo_documento": "FASE4_TEST",
+      "numero_documento": "FASE4-978e30b0f9d7497d810f391a96bca64b-A",
+      "persona_id": "4f65019c-4a01-4753-ad6a-6ff42c65d074"
+    }
+  ],
+  "persona": [
+    {
+      "id": "4f65019c-4a01-4753-ad6a-6ff42c65d074",
+      "activo": false,
+      "apellidos": "Prueba",
+      "ciudad": "Pasto",
+      "correo": "ana@example.test",
+      "departamento": "Putumayo",
+      "direccion": "Calle ficticia 1",
+      "fecha_actualizacion": "2026-11-04 23:59:17.542Z",
+      "fecha_creacion": "2026-11-04 23:59:13.014Z",
+      "fecha_nacimiento": "2000-01-02",
+      "nombres": "Ana Actualizada",
+      "numero_documento": "FASE4-978e30b0f9d7497d810f391a96bca64b-A",
+      "observaciones": "Prueba aislada fase 4",
+      "pais": "Colombia",
+      "roles": [
+        "PROVEEDOR"
+      ],
+      "telefono": "3000000000",
+      "telefono_alternativo": "3100000000",
+      "tipo_documento": "FASE4_TEST"
+    }
+  ]
+}

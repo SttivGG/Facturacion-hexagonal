@@ -1,0 +1,79 @@
+[
+  {
+    "name": "com.sttiv.facturacion.application.FacturaServiceTests",
+    "tests": 18,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "name": "com.sttiv.facturacion.application.PersonaServiceTests",
+    "tests": 15,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "name": "com.sttiv.facturacion.application.ProductoServiceTests",
+    "tests": 18,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "name": "com.sttiv.facturacion.FacturacionHexagonalApplicationTests",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "name": "com.sttiv.facturacion.infrastructure.CassandraPersonaAdapterTests",
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "name": "com.sttiv.facturacion.infrastructure.FacturaControllerTests",
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "name": "com.sttiv.facturacion.infrastructure.FacturaJpaTests",
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "name": "com.sttiv.facturacion.infrastructure.MongoProductoAdapterTests",
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "name": "com.sttiv.facturacion.infrastructure.MySqlFacturaIntegrationTests",
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "name": "com.sttiv.facturacion.infrastructure.PersonaControllerTests",
+    "tests": 7,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "name": "com.sttiv.facturacion.infrastructure.ProductoControllerTests",
+    "tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+]

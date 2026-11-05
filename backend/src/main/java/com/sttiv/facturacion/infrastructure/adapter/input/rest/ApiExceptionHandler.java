@@ -8,9 +8,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(ConflictoFacturaException.class)
+    ResponseEntity<ProblemDetail> conflictoFactura(ConflictoFacturaException ex) {
+        return error(HttpStatus.CONFLICT, ex.getMessage());
+    }
     @ExceptionHandler(RecursoNoEncontradoException.class)
     ResponseEntity<ProblemDetail> noEncontrado(RecursoNoEncontradoException ex) {
         return error(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -18,6 +23,18 @@ public class ApiExceptionHandler {
     @ExceptionHandler(SkuDuplicadoException.class)
     ResponseEntity<ProblemDetail> duplicado(SkuDuplicadoException ex) {
         return error(HttpStatus.CONFLICT, ex.getMessage());
+    }
+    @ExceptionHandler(DocumentoDuplicadoException.class)
+    ResponseEntity<ProblemDetail> documentoDuplicado(DocumentoDuplicadoException ex) {
+        return error(HttpStatus.CONFLICT, ex.getMessage());
+    }
+    @ExceptionHandler(PersistenciaPersonaException.class)
+    ResponseEntity<ProblemDetail> persistencia(PersistenciaPersonaException ex) {
+        return error(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    ResponseEntity<ProblemDetail> tipoInvalido() {
+        return error(HttpStatus.BAD_REQUEST, "Identificador, UUID o valor enumerado inválido");
     }
     @ExceptionHandler(DatosInvalidosException.class)
     ResponseEntity<ProblemDetail> invalido(DatosInvalidosException ex) {
@@ -27,7 +44,7 @@ public class ApiExceptionHandler {
     ResponseEntity<ProblemDetail> validacion(MethodArgumentNotValidException ex) {
         var campos = new LinkedHashMap<String, String>();
         ex.getBindingResult().getFieldErrors().forEach(e -> campos.put(e.getField(), e.getDefaultMessage()));
-        var detalle = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Datos de producto inválidos");
+        var detalle = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Datos de entrada inválidos");
         detalle.setProperty("errores", campos);
         return ResponseEntity.badRequest().body(detalle);
     }

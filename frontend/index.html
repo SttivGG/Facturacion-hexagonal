@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#F4F4F4" />
+    <meta
+      name="description"
+      content="Nexo: productos, personas y una visión clara de tu negocio."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="preload"
+      href="/fonts/urbanist-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <title>Nexo · Facturación</title>
+    <script>
+      try {
+        const preferences = JSON.parse(
+          localStorage.getItem("nexo.appearance.v2") || "{}",
+        );
+        document.documentElement.dataset.theme =
+          preferences.theme === "dark" ? "dark" : "light";
+      } catch {
+        document.documentElement.dataset.theme = "light";
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

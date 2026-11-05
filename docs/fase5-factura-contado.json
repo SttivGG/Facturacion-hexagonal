@@ -1,0 +1,59 @@
+{
+  "id": 21,
+  "numeroFactura": "FAC-21",
+  "clienteId": "9a41b6ed-ccee-448a-a38a-badcc3be26ba",
+  "vendedorId": null,
+  "clienteNombre": "Cliente Ficticio Fase 5 Prueba",
+  "clienteDocumento": "FASE5_TEST FASE5-72de51dd40094d4ea55d77e36350fd07-CLIENTE",
+  "fechaEmision": "2026-11-05T00:36:48.255Z",
+  "fechaVencimiento": null,
+  "modalidad": "CONTADO",
+  "subtotal": 12000.35,
+  "impuestos": 0.0,
+  "total": 12000.35,
+  "totalPagado": 12000.35,
+  "saldoPendiente": 0.0,
+  "estado": "PAGADA",
+  "detalles": [
+    {
+      "id": 25,
+      "productoId": "0b68f1b6-943b-4fee-b78c-8edc267ba33d",
+      "sku": "FASE5-72de51dd40094d4ea55d77e36350fd07-A",
+      "nombreProducto": "Producto ficticio A",
+      "cantidad": 1,
+      "precioUnitario": 10000.25,
+      "subtotal": 10000.25,
+      "total": 10000.25
+    },
+    {
+      "id": 26,
+      "productoId": "92c4293f-7570-468b-96a3-62b8abeae300",
+      "sku": "FASE5-72de51dd40094d4ea55d77e36350fd07-B",
+      "nombreProducto": "Producto ficticio B",
+      "cantidad": 1,
+      "precioUnitario": 2000.1,
+      "subtotal": 2000.1,
+      "total": 2000.1
+    }
+  ],
+  "pagos": [
+    {
+      "id": 11,
+      "facturaId": 21,
+      "fechaPago": "2026-11-05T00:36:48.255Z",
+      "monto": 10000.0,
+      "metodoPago": "EFECTIVO",
+      "referencia": null,
+      "observaciones": null
+    },
+    {
+      "id": 12,
+      "facturaId": 21,
+      "fechaPago": "2026-11-05T00:36:48.255Z",
+      "monto": 2000.35,
+      "metodoPago": "TRANSFERENCIA",
+      "referencia": "FASE5-72de51dd40094d4ea55d77e36350fd07-TR",
+      "observaciones": null
+    }
+  ]
+}

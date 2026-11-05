@@ -1,0 +1,22 @@
+{
+  "id": "9a41b6ed-ccee-448a-a38a-badcc3be26ba",
+  "activo": true,
+  "apellidos": "Prueba",
+  "ciudad": null,
+  "correo": null,
+  "departamento": null,
+  "direccion": null,
+  "fecha_actualizacion": "2026-11-05 00:36:47.450Z",
+  "fecha_creacion": "2026-11-05 00:36:47.450Z",
+  "fecha_nacimiento": null,
+  "nombres": "Cliente Ficticio Fase 5",
+  "numero_documento": "FASE5-72de51dd40094d4ea55d77e36350fd07-CLIENTE",
+  "observaciones": null,
+  "pais": null,
+  "roles": [
+    "CLIENTE"
+  ],
+  "telefono": null,
+  "telefono_alternativo": null,
+  "tipo_documento": "FASE5_TEST"
+}

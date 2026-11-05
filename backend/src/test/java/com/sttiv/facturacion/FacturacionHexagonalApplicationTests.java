@@ -13,6 +13,8 @@ import org.springframework.test.json.JsonCompareMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import com.mongodb.client.MongoClient;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.sttiv.facturacion.domain.port.PersonaRepositoryPort;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -20,6 +22,12 @@ class FacturacionHexagonalApplicationTests {
 
 	@MockitoBean
 	private MongoClient mongoClient;
+
+	@MockitoBean
+	private CqlSession cqlSession;
+
+	@MockitoBean
+	private PersonaRepositoryPort personaRepository;
 
 	@Autowired
 	private MockMvc mockMvc;

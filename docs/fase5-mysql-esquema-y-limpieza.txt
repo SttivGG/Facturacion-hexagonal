@@ -1,0 +1,13 @@
+TABLE_NAME	ENGINE
+factura_detalles	InnoDB
+facturas	InnoDB
+flyway_schema_history	InnoDB
+pagos	InnoDB
+version	description	success
+1	facturacion	1
+facturas_restantes
+0
+detalles_restantes
+0
+pagos_restantes
+0
