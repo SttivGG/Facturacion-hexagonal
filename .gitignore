@@ -53,6 +53,9 @@ node_modules/
 .cache/
 __pycache__/
 *.pyc
+.venv/
+.pytest_cache/
+services/ml-api/model-data/
 *.log
 *.key
 *.pem
