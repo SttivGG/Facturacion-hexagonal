@@ -104,4 +104,5 @@ export type Page =
   | "facturas"
   | "venta"
   | "creditos"
+  | "predicciones"
   | "apariencia";

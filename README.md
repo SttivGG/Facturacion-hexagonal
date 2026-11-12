@@ -13,6 +13,8 @@ El backend usa Java 21 y Spring Boot 4.1.2. El frontend usa React, TypeScript y 
 - Punto de venta con cliente por documento, vendedor opcional, carrito, pagos mixtos de contado y crédito con vencimiento e inicial opcional.
 - Historial de facturas, filtros locales, detalle histórico, comprobante imprimible, cartera y abonos con comprobación del saldo vigente.
 - Analítica en Druid con snapshots históricos de MySQL, reconciliación periódica y manual, consulta de estado y resumen agregado. La sincronización se solicita después del commit transaccional y ejecuta una sola ingesta a la vez.
+- Predicción opcional del valor facturado con Ridge, historial diario MySQL, evaluación cronológica de 14 días, referencia semanal y horizontes de 7 o 14 días. Entrenamiento manual, importes decimales como cadenas y estados explícitos cuando faltan datos o el servicio está detenido.
+- Modo académico de demostración ML con 90 días sintéticos reproducibles, entrenamiento Ridge real y artefacto independiente. Se selecciona en Predicciones inteligentes, identifica siempre los datos simulados y requiere `ML_DEMO_ENABLED=true`; está deshabilitado por defecto.
 
 Los importes transaccionales usan `BigDecimal` con dos decimales; el navegador conserva centavos mediante `BigInt`. MySQL guarda los datos históricos del cliente y los productos. Los abonos bloquean la cabecera de la factura dentro de una transacción para evitar sobrepagos concurrentes.
 
@@ -133,6 +135,8 @@ Detalles, límites de memoria y verificaciones: [infraestructura Druid](docs/FAS
 
 ## URLs principales
 
+El perfil opcional `ml` agrega FastAPI/scikit-learn sin publicar su puerto ni darle acceso a MySQL. `ML_ENABLED=false` conserva el arranque habitual. La pantalla está en `/predicciones`; requiere al menos 56 días completos de historial real. Arranque, contratos, pruebas, métricas y límites: [Fase 8 · Machine Learning](docs/FASE8-MACHINE-LEARNING.md).
+
 | Dirección predeterminada | Uso |
 | --- | --- |
 | `http://localhost:5173` | Dashboard de Nexo |
@@ -142,6 +146,7 @@ Detalles, límites de memoria y verificaciones: [infraestructura Druid](docs/FAS
 | `http://localhost:5173/facturas` | Historial; `/facturas/{id}` abre el detalle |
 | `http://localhost:5173/creditos` | Créditos y pagos |
 | `http://localhost:5173/apariencia` | Preferencias visuales |
+| `http://localhost:5173/predicciones` | Predicción de valor facturado · perfil ML opcional |
 | `http://localhost:8080/api/health` | Salud del backend |
 | `http://localhost:8888` | Consola Druid, con analytics iniciado |
 
@@ -199,6 +204,7 @@ Playwright cubre escritorio, tablet y móvil. Ventas, proveedores y ubicaciones 
 - [Fase 7A: infraestructura Druid](docs/FASE7A-DRUID-INFRAESTRUCTURA.md) y [Fase 7B: ingesta](docs/FASE7B-DRUID-INGESTA.md).
 - [Fase 7C: ubicaciones DIVIPOLA](docs/FASE7C-UBICACIONES-DIVIPOLA.md).
 - [Fase 7D: selector de proveedores](docs/FASE7D-SELECTOR-PROVEEDORES.md) y [corrección del combobox](docs/FASE7D-CORRECCION-COMBOBOX.md).
+- [Fase 8: Machine Learning y predicción de ventas](docs/FASE8-MACHINE-LEARNING.md).
 
 Los informes de fases anteriores conservan sus resultados históricos. El README describe las funciones disponibles actualmente. La [revisión de consolidación](docs/CONSOLIDACION-NEXO.md) registra las pruebas finales, las omisiones y la auditoría del contenido preparado para Git.
 

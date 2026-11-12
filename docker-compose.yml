@@ -71,6 +71,10 @@ services:
       DRUID_HTTP_TIMEOUT: ${DRUID_HTTP_TIMEOUT:-PT10S}
       DRUID_TASK_TIMEOUT: ${DRUID_TASK_TIMEOUT:-PT8M}
       DRUID_MAX_REQUEST_BYTES: ${DRUID_MAX_REQUEST_BYTES:-1000000}
+      ML_ENABLED: ${ML_ENABLED:-false}
+      ML_DEMO_ENABLED: ${ML_DEMO_ENABLED:-false}
+      ML_BASE_URL: ${ML_BASE_URL:-http://facturacion-ml:8000}
+      ML_HTTP_TIMEOUT: ${ML_HTTP_TIMEOUT:-PT10S}
     depends_on:
       facturacion-mongodb:
         condition: service_healthy
@@ -81,6 +85,28 @@ services:
       facturacion-mysql:
         condition: service_healthy
     mem_limit: 512m
+    networks:
+      - facturacion-interna
+
+  facturacion-ml:
+    profiles: [ml]
+    build:
+      context: ./services/ml-api
+    environment:
+      ML_MODEL_DIR: /data
+      ML_DEMO_ENABLED: ${ML_DEMO_ENABLED:-false}
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    volumes:
+      - ml-model-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      start_period: 15s
+      retries: 5
+    mem_limit: 384m
+    restart: unless-stopped
     networks:
       - facturacion-interna
 
@@ -320,6 +346,7 @@ networks:
     driver: bridge
 
 volumes:
+  ml-model-data:
   mongodb-data:
   cassandra-data:
   mysql-data:

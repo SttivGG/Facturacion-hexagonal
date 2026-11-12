@@ -14,6 +14,7 @@ import {
   ShoppingBag,
   Sun,
   Users,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { request } from "./api";
@@ -25,6 +26,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { Products } from "./pages/Products";
 import { People } from "./pages/People";
 import { Appearance } from "./pages/Appearance";
+import { Predictions } from "./pages/Predictions";
 import { Sale } from "./pages/Sale";
 import { Invoices, InvoiceDetail } from "./pages/Invoices";
 import { go, pagePath, routePath } from "./navigation";
@@ -35,6 +37,7 @@ const navItems = [
   { page: "personas", label: "Personas", icon: Users },
   { page: "facturas", label: "Facturas", icon: FileText },
   { page: "venta", label: "Nueva venta", icon: ShoppingBag },
+  { page: "predicciones", label: "Predicciones inteligentes", icon: ChartNoAxesCombined },
   {
     page: "creditos",
     label: "Créditos y pagos",
@@ -49,6 +52,7 @@ const pageNames: Record<Page, string> = {
   venta: "Nueva venta",
   creditos: "Créditos y pagos",
   apariencia: "Configuración visual",
+  predicciones: "Predicciones inteligentes",
 };
 function currentPage(): Page {
   const path = routePath();
@@ -265,6 +269,8 @@ export default function App() {
               <People notify={notify} />
             ) : page === "apariencia" ? (
               <Appearance />
+            ) : page === "predicciones" ? (
+              <Predictions />
             ) : page === "venta" ? <Sale notify={notify} />
               : page === "creditos" ? <Invoices credits notify={notify} />
               : /^\/facturas\/\d+$/.test(route) ? <InvoiceDetail id={Number(route.split("/")[2])} notify={notify} />
