@@ -85,6 +85,8 @@ Invoke-RestMethod http://localhost:8080/api/health
 
 El backend espera las bases y el inicializador Cassandra. Los tres motores de negocio permanecen dentro de la red Docker; sus puertos no se publican en Windows. Los volúmenes nombrados conservan datos entre actualizaciones.
 
+Para arrancar el proyecto, usa `docker compose up` con las opciones anteriores. Al iniciar todo el grupo desde Docker Desktop, los contenedores pueden arrancar al mismo tiempo sin esperar las dependencias; Cassandra puede tardar más que el backend. El backend reintenta hasta cinco veces si termina con error para recuperarse de ese arranque simultáneo.
+
 Para actualizar exclusivamente el frontend con el resto de servicios ya iniciado:
 
 ```powershell

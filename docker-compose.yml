@@ -39,6 +39,8 @@ services:
       - facturacion-interna
 
   facturacion-backend:
+    # Docker Desktop puede iniciar el grupo sin esperar los healthchecks de Compose.
+    restart: "on-failure:5"
     build:
       context: ./backend
       dockerfile: Dockerfile
